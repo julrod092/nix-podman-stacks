@@ -194,61 +194,6 @@ in {
           inherit category;
         };
       };
-<<<<<<< HEAD
-
-      ${jobOpsName} = lib.mkIf cfg.jobOps.enable {
-        image = "ghcr.io/dakheera47/job-ops:v0.6.2";
-        volumeMap = {
-          data = "${storage}/job-ops/data:/app/data";
-          codexHome = "${storage}/job-ops/codex-home:/app/codex-home";
-        };
-
-        extraEnv =
-          {
-            NODE_ENV = "production";
-            PORT = 3001;
-            PYTHON_PATH = "/usr/bin/python3";
-            CODEX_HOME = "/app/codex-home";
-            JOBOPS_PUBLIC_BASE_URL = cfg.containers.${jobOpsName}.traefik.serviceUrl;
-            RXRESUME_URL = "http://${name}:3000";
-          }
-          // lib.optionalAttrs (cfg.jobOps.rxResumeApiKeyFile != null) {
-            RXRESUME_API_KEY.fromFile = cfg.jobOps.rxResumeApiKeyFile;
-          }
-          // cfg.jobOps.extraEnv;
-
-        wantsContainer = [name];
-
-        extraConfig.Container = {
-          Notify = "healthy";
-          HealthCmd = "curl -f http://localhost:3001/health";
-          HealthInterval = "30s";
-          HealthTimeout = "10s";
-          HealthRetries = 3;
-          HealthStartPeriod = "10s";
-        };
-
-        stack = name;
-        port = 3001;
-        traefik.name = jobOpsName;
-        homepage = {
-          inherit category;
-          name = jobOpsDisplayName;
-          settings = {
-            description = jobOpsDescription;
-            icon = "job-ops";
-          };
-        };
-        glance = {
-          inherit category;
-          description = jobOpsDescription;
-          name = jobOpsDisplayName;
-          id = jobOpsName;
-          icon = "sh:job-ops";
-        };
-      };
-=======
->>>>>>> ff11ae4 (Remove JobOps from rx-resume config)
     };
   };
 }
