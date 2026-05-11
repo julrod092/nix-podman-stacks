@@ -680,6 +680,7 @@ in {
           enable = true;
           email = "admin@example.com";
           passwordFile = dummySecretFile;
+          clientSecretHash = dummyHash;
         };
       };
 
