@@ -242,15 +242,6 @@ in {
 
         wantsContainer = [name];
 
-        extraConfig.Container = {
-          Notify = "healthy";
-          HealthCmd = "curl -f http://localhost:3001/health";
-          HealthInterval = "30s";
-          HealthTimeout = "10s";
-          HealthRetries = 3;
-          HealthStartPeriod = "10s";
-        };
-
         stack = name;
         port = 3001;
         traefik.name = jobOpsName;
