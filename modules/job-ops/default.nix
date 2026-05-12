@@ -85,14 +85,14 @@ in {
           name = displayName;
           settings = {
             inherit description;
-            icon = "job-ops";
+            icon = "https://jobops.app/image.png";
           };
         };
         glance = {
           inherit category description;
           name = displayName;
           id = containerName;
-          icon = "sh:job-ops";
+          icon = "https://jobops.app/image.png";
         };
       };
     }
