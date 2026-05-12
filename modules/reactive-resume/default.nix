@@ -6,7 +6,6 @@
   name = "reactive-resume";
   dbName = "${name}-db";
   chromeName = "${name}-chrome";
-  jobOpsName = "job-ops";
 
   cfg = config.nps.stacks.${name};
   storage = "${config.nps.storageBaseDir}/${name}";
@@ -14,14 +13,11 @@
   category = "General";
   description = "Resume Builder";
   displayName = "Reactive Resume";
-  jobOpsDescription = "Job Search Assistant";
-  jobOpsDisplayName = "JobOps";
 in {
   imports = import ../mkAliases.nix config lib name [
     name
     dbName
     chromeName
-    jobOpsName
   ];
 
   options.nps.stacks.${name} = {
@@ -80,27 +76,6 @@ in {
         type = lib.types.path;
         description = ''
           The file containing the PostgreSQL password for the database.
-        '';
-      };
-    };
-    jobOps = {
-      enable = lib.mkEnableOption "JobOps";
-      rxResumeApiKeyFile = lib.mkOption {
-        type = lib.types.nullOr lib.types.path;
-        default = null;
-        description = ''
-          Path to the file containing a Reactive Resume v5 API key for JobOps.
-          If unset, JobOps can still be configured through its onboarding flow.
-        '';
-      };
-      extraEnv = lib.mkOption {
-        type = (import ../types.nix lib).extraEnv;
-        default = {};
-        description = ''
-          Extra environment variables to set for the JobOps container.
-          Variables can be either set directly or sourced from a file (e.g. for secrets).
-
-          See <https://github.com/DaKheera47/job-ops/blob/main/.env.example>
         '';
       };
     };
@@ -219,6 +194,7 @@ in {
           inherit category;
         };
       };
+<<<<<<< HEAD
 
       ${jobOpsName} = lib.mkIf cfg.jobOps.enable {
         image = "ghcr.io/dakheera47/job-ops:v0.6.2";
@@ -271,6 +247,8 @@ in {
           icon = "sh:job-ops";
         };
       };
+=======
+>>>>>>> ff11ae4 (Remove JobOps from rx-resume config)
     };
   };
 }
