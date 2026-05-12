@@ -12,7 +12,6 @@
   category = "General";
   description = "Job Search Assistant";
   displayName = "JobOps";
-  version = "v0.10.0";
 in {
   imports = import ../mkAliases.nix config lib name [containerName];
 
@@ -53,7 +52,7 @@ in {
     })
     {
       services.podman.containers.${containerName} = {
-        image = "ghcr.io/dakheera47/job-ops:${version}";
+        image = "ghcr.io/dakheera47/job-ops:v0.6.2";
         volumeMap = {
           data = "${storage}/data:/app/data";
           codexHome = "${storage}/codex-home:/app/codex-home";
@@ -85,14 +84,14 @@ in {
           name = displayName;
           settings = {
             inherit description;
-            icon = "https://jobops.app/image.png";
+            icon = "job-ops";
           };
         };
         glance = {
           inherit category description;
           name = displayName;
           id = containerName;
-          icon = "https://jobops.app/image.png";
+          icon = "sh:job-ops";
         };
       };
     }
