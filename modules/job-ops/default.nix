@@ -84,7 +84,7 @@ in {
           name = displayName;
           settings = {
             inherit description;
-            icon = "job-ops";
+            icon = "sh-job-ops";
           };
         };
         glance = {
