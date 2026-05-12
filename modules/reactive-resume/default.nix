@@ -6,7 +6,6 @@
   name = "reactive-resume";
   dbName = "${name}-db";
   chromeName = "${name}-chrome";
-  jobOpsName = "job-ops";
 
   cfg = config.nps.stacks.${name};
   storage = "${config.nps.storageBaseDir}/${name}";
@@ -14,14 +13,11 @@
   category = "General";
   description = "Resume Builder";
   displayName = "Reactive Resume";
-  jobOpsDescription = "Job Search Assistant";
-  jobOpsDisplayName = "JobOps";
 in {
   imports = import ../mkAliases.nix config lib name [
     name
     dbName
     chromeName
-    jobOpsName
   ];
 
   options.nps.stacks.${name} = {
@@ -80,27 +76,6 @@ in {
         type = lib.types.path;
         description = ''
           The file containing the PostgreSQL password for the database.
-        '';
-      };
-    };
-    jobOps = {
-      enable = lib.mkEnableOption "JobOps";
-      rxResumeApiKeyFile = lib.mkOption {
-        type = lib.types.nullOr lib.types.path;
-        default = null;
-        description = ''
-          Path to the file containing a Reactive Resume v5 API key for JobOps.
-          If unset, JobOps can still be configured through its onboarding flow.
-        '';
-      };
-      extraEnv = lib.mkOption {
-        type = (import ../types.nix lib).extraEnv;
-        default = {};
-        description = ''
-          Extra environment variables to set for the JobOps container.
-          Variables can be either set directly or sourced from a file (e.g. for secrets).
-
-          See <https://github.com/DaKheera47/job-ops/blob/main/.env.example>
         '';
       };
     };
@@ -217,58 +192,6 @@ in {
           name = "Postgres";
           icon = "di:postgres";
           inherit category;
-        };
-      };
-
-      ${jobOpsName} = lib.mkIf cfg.jobOps.enable {
-        image = "ghcr.io/dakheera47/job-ops:v0.6.2";
-        volumeMap = {
-          data = "${storage}/job-ops/data:/app/data";
-          codexHome = "${storage}/job-ops/codex-home:/app/codex-home";
-        };
-
-        extraEnv =
-          {
-            NODE_ENV = "production";
-            PORT = 3001;
-            PYTHON_PATH = "/usr/bin/python3";
-            CODEX_HOME = "/app/codex-home";
-            JOBOPS_PUBLIC_BASE_URL = cfg.containers.${jobOpsName}.traefik.serviceUrl;
-            RXRESUME_URL = "http://${name}:3000";
-          }
-          // lib.optionalAttrs (cfg.jobOps.rxResumeApiKeyFile != null) {
-            RXRESUME_API_KEY.fromFile = cfg.jobOps.rxResumeApiKeyFile;
-          }
-          // cfg.jobOps.extraEnv;
-
-        wantsContainer = [name];
-
-        extraConfig.Container = {
-          Notify = "healthy";
-          HealthCmd = "curl -f http://localhost:3001/health";
-          HealthInterval = "30s";
-          HealthTimeout = "10s";
-          HealthRetries = 3;
-          HealthStartPeriod = "10s";
-        };
-
-        stack = name;
-        port = 3001;
-        traefik.name = jobOpsName;
-        homepage = {
-          inherit category;
-          name = jobOpsDisplayName;
-          settings = {
-            description = jobOpsDescription;
-            icon = "job-ops";
-          };
-        };
-        glance = {
-          inherit category;
-          description = jobOpsDescription;
-          name = jobOpsDisplayName;
-          id = jobOpsName;
-          icon = "sh:job-ops";
         };
       };
     };
