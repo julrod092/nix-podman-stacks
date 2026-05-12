@@ -107,6 +107,7 @@ There is also an [Option Search](https://tarow.github.io/nix-podman-stacks/searc
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/webp/hortusfox.webp" style="width:1em;height:1em;" /> [HortusFox](https://tarow.github.io/nix-podman-stacks/docs/stacks/hortusfox.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/immich.svg" style="width:1em;height:1em;" /> [Immich](https://tarow.github.io/nix-podman-stacks/docs/stacks/immich.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/it-tools.svg" style="width:1em;height:1em;" /> [IT-Tools](https://tarow.github.io/nix-podman-stacks/docs/stacks/it-tools.html)
+- <img src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/job-ops.svg" style="width:1em;height:1em;" /> [JobOps](https://tarow.github.io/nix-podman-stacks/docs/stacks/job-ops.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/jotty.svg" style="width:1em;height:1em;" /> [Jotty](https://tarow.github.io/nix-podman-stacks/docs/stacks/jotty.html)
 - <img src="https://cdn.jsdelivr.net/gh/selfhst/icons@main/webp/kaneo.webp" style="width:1em;height:1em;" /> [Kaneo](https://tarow.github.io/nix-podman-stacks/docs/stacks/kaneo.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/karakeep.svg" style="width:1em;height:1em;" /> [Karakeep](https://tarow.github.io/nix-podman-stacks/docs/stacks/karakeep.html)
@@ -140,7 +141,6 @@ There is also an [Option Search](https://tarow.github.io/nix-podman-stacks/searc
   - 📂 FTP Server
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/papra.svg" style="width:1em;" /> [Papra](https://tarow.github.io/nix-podman-stacks/docs/stacks/papra.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/reactive-resume.svg" style="width:1em;height:1em;" /> [Reactive Resume](https://tarow.github.io/nix-podman-stacks/docs/stacks/reactive_resume.html)
-  - JobOps
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/romm.svg" style="width:1em;height:1em;" /> [RomM](https://tarow.github.io/nix-podman-stacks/docs/stacks/romm.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/searxng.svg" style="width:1em;height:1em;" /> [SearXNG](https://tarow.github.io/nix-podman-stacks/docs/stacks/searxng.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/webp/calibre-web-automated-book-downloader.webp" style="width:1em;height:1em;" /> [Shelfmark](https://tarow.github.io/nix-podman-stacks/docs/stacks/shelfmark.html)

@@ -39,6 +39,7 @@ let
     hortusfox = ./hortusfox;
     immich = ./immich;
     ittools = ./it-tools;
+    job-ops = ./job-ops;
     jotty = ./jotty;
     kaneo = ./kaneo;
     karakeep = ./karakeep;

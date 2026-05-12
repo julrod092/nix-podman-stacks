@@ -664,13 +664,14 @@ in {
           clientSecretFile = dummySecretFile;
           clientSecretHash = dummyHash;
         };
-        jobOps = {
-          enable = true;
-          rxResumeApiKeyFile = dummySecretFile;
-          extraEnv = {
-            GMAIL_OAUTH_CLIENT_ID.fromFile = dummySecretFile;
-            GMAIL_OAUTH_CLIENT_SECRET.fromFile = dummySecretFile;
-          };
+      };
+
+      job-ops = {
+        enable = true;
+        rxResumeApiKeyFile = dummySecretFile;
+        extraEnv = {
+          GMAIL_OAUTH_CLIENT_ID.fromFile = dummySecretFile;
+          GMAIL_OAUTH_CLIENT_SECRET.fromFile = dummySecretFile;
         };
       };
 
