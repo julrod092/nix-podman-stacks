@@ -5,6 +5,7 @@ let
     adventurelog = ./adventurelog;
     aiostreams = ./aiostreams;
     anchor = ./anchor;
+    appflowy = ./appflowy;
     audiobookshelf = ./audiobookshelf;
     authelia = ./authelia;
     baikal = ./baikal;
