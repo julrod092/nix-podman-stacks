@@ -34,7 +34,8 @@
         "/guacamole/",
         "/kitchenowl/",
         "/adventurelog/",
-        "/kaneo/"
+        "/kaneo/",
+        "/appflowyinc/"
       ],
       "groupName": "{{parentDir}}"
     },
