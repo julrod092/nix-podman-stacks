@@ -470,7 +470,7 @@ in {
         };
 
         ${qbittorrentName} = lib.mkIf cfg.qbittorrent.enable {
-          image = "docker.io/linuxserver/qbittorrent:5.2.0";
+          image = "docker.io/linuxserver/qbittorrent:5.2.1";
 
           network = lib.mkIf cfg.gluetun.enable (lib.mkForce ["container:${gluetunName}"]);
           volumeMap = {
@@ -510,7 +510,7 @@ in {
         };
 
         ${quiName} = lib.mkIf cfg.qui.enable {
-          image = "ghcr.io/autobrr/qui:v1.18.0";
+          image = "ghcr.io/autobrr/qui:v1.19.0";
           volumeMap = {
             config = "${storage}/${quiName}:/config";
             media = "${mediaStorage}:/media";
@@ -575,7 +575,7 @@ in {
           '';
         in
           lib.mkIf cfg.jellyfin.enable {
-            image = "lscr.io/linuxserver/jellyfin:10.11.8";
+            image = "lscr.io/linuxserver/jellyfin:10.11.10";
             volumeMap = {
               config = "${storage}/${jellyfinName}:/config";
               media = "${mediaStorage}:/media";
