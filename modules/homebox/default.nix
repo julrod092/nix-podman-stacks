@@ -116,20 +116,18 @@ in {
             HBOX_DATABASE_DATABASE = name;
             HBOX_DATABASE_SSL_MODE = "disable";
           }
-          // lib.optionalAttrs cfg.oidc.enable (let
-            utils = import ../utils.nix {inherit lib config;};
-          in {
+          // lib.optionalAttrs cfg.oidc.enable {
             HBOX_OIDC_ENABLED = true;
             HBOX_OIDC_ISSUER_URL = config.nps.containers.authelia.traefik.serviceUrl;
             HBOX_OIDC_CLIENT_ID = name;
             HBOX_OIDC_CLIENT_SECRET.fromFile = cfg.oidc.clientSecretFile;
             HBOX_OPTIONS_TRUST_PROXY = true;
             HBOX_OPTIONS_HOSTNAME = cfg.containers.${name}.traefik.serviceHost;
-            HBOX_OIDC_SCOPE = utils.escapeOnDemand ''"openid groups email profile"'';
+            HBOX_OIDC_SCOPE = "openid groups email profile";
             HBOX_OIDC_ALLOWED_GROUPS = cfg.oidc.userGroup;
             HBOX_OPTIONS_ALLOW_LOCAL_LOGIN = lib.mkDefault false;
             HBOX_OPTIONS_ALLOW_REGISTRATION = lib.mkDefault false;
-          });
+          };
 
         # Authelia is necessary when Homebox starts as well-known endpoint is queried at startup
         wantsContainer = ["authelia"] ++ lib.optional (cfg.db.type == "postgres") dbName;

@@ -190,10 +190,8 @@ in {
           localConfig = "${cfg.settings}:/etc/crowdsec/config.yaml.local";
         }
         // (lib.mapAttrs (name: file: "${file}:/etc/crowdsec/acquis.d/${name}.yaml") cfg.acquisSettings);
-      environment = let
-        utils = pkgs.callPackage ../utils.nix {inherit config;};
-      in {
-        COLLECTIONS = utils.escapeOnDemand ''"${cfg.collections}"'';
+      environment = {
+        COLLECTIONS = cfg.collections;
         UID = config.nps.defaultUid;
         GID = config.nps.defaultGid;
       };

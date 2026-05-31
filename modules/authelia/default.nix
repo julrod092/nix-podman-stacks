@@ -179,7 +179,6 @@ in {
     };
     settings = lib.mkOption {
       type = yaml.type;
-
       description = ''
         Additional Authelia settings. Will be provided in the `configuration.yml`.
       '';
@@ -293,7 +292,9 @@ in {
         password_change.disable = lib.mkDefault true;
       };
       access_control.default_policy = lib.mkDefault config.nps.stacks.${name}.defaultAllowPolicy;
-      notifier.filesystem.filename = "/notifier/notification.txt";
+
+      # Make entire notifier block with default prioority, so configured smtp settings will override the filesystem notifier, since Authelia only supports a single configured notifier
+      notifier = lib.mkDefault {filesystem.filename = "/notifier/notification.txt";};
       session =
         {
           name = "authelia_session";

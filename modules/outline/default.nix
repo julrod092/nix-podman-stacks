@@ -145,7 +145,7 @@ in {
             OIDC_ISSUER_URL = config.nps.containers.authelia.traefik.serviceUrl;
             OIDC_CLIENT_ID = name;
             OIDC_CLIENT_SECRET.fromFile = cfg.oidc.clientSecretFile;
-            OIDC_SCOPES = utils.escapeOnDemand ''"openid offline_access profile email"'';
+            OIDC_SCOPES = "openid offline_access profile email";
             OIDC_DISPLAY_NAME = "Authelia";
           }
           // cfg.extraEnv;

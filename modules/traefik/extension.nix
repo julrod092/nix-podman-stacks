@@ -189,7 +189,7 @@ in {
             labels = lib.optionalAttrs enableTraefik (
               {
                 "traefik.enable" = "true";
-                "traefik.http.routers.${name}.rule" = utils.escapeOnDemand ''Host(`${traefikCfg.serviceHost}`)'';
+                "traefik.http.routers.${name}.rule" = ''Host(`${traefikCfg.serviceHost}`)'';
                 # "traefik.http.routers.${name}.entrypoints" = "websecure,websecure-internal";
                 "traefik.http.routers.${name}.service" = lib.mkDefault name;
               }

@@ -146,19 +146,18 @@ in {
         };
         extraEnv = let
           autheliaUrl = config.nps.containers.authelia.traefik.serviceUrl;
-          utils = import ../utils.nix {inherit lib config;};
         in
           lib.optionalAttrs (cfg.oidc.enable) {
             OPENID_ENABLED = cfg.oidc.enable;
             OPENID_CLIENT_ID = name;
-            OPENID_SCOPE = utils.escapeOnDemand ''"openid profile groups email"'';
+            OPENID_SCOPE = "openid profile groups email";
             OPENID_ISSUER = autheliaUrl;
             OPENID_JWKS_ENDPOINT = "${autheliaUrl}/jwks.json";
             OPENID_AUTHORIZATION_ENDPOINT = "${autheliaUrl}/api/oidc/authorization?state=1234abcedfdhf";
             OPENID_REDIRECT_URI = cfg.containers.${name}.traefik.serviceUrl;
             OPENID_USERNAME_CLAIM_TYPE = "preferred_username";
             OPENID_GROUPS_CLAIM_TYPE = "groups";
-            EXTENSION_PRIORITY = utils.escapeOnDemand ''"*, openid"'';
+            EXTENSION_PRIORITY = "*, openid";
           }
           // lib.optionalAttrs (cfg.db.enable) {
             POSTGRESQL_DATABASE = name;

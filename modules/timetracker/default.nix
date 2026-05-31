@@ -145,7 +145,7 @@ in {
             OIDC_CLIENT_ID = name;
             OIDC_CLIENT_SECRET.fromFile = cfg.oidc.clientSecretFile;
             OIDC_REDIRECT_URI = "${cfg.containers.${name}.traefik.serviceUrl}/auth/oidc/callback";
-            OIDC_SCOPES = utils.escapeOnDemand ''"openid profile email groups"'';
+            OIDC_SCOPES = "openid profile email groups";
             OIDC_USERNAME_CLAIM = "preferred_username";
             OIDC_FULL_NAME_CLAIM = "name";
             OIDC_EMAIL_CLAIM = "email";
