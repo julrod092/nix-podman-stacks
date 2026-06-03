@@ -52,7 +52,7 @@ in {
     })
     {
       services.podman.containers.${containerName} = {
-        image = "ghcr.io/dakheera47/job-ops:v0.6.2";
+        image = "ghcr.io/dakheera47/job-ops:v0.8.0";
         volumeMap = {
           data = "${storage}/data:/app/data";
           codexHome = "${storage}/codex-home:/app/codex-home";
