@@ -12,6 +12,7 @@
   category = "General";
   description = "Job Search Assistant";
   displayName = "JobOps";
+  version = "v0.9.0";
 in {
   imports = import ../mkAliases.nix config lib name [containerName];
 
@@ -52,7 +53,7 @@ in {
     })
     {
       services.podman.containers.${containerName} = {
-        image = "ghcr.io/dakheera47/job-ops:v0.8.0";
+        image = "ghcr.io/dakheera47/job-ops:${version}";
         volumeMap = {
           data = "${storage}/data:/app/data";
           codexHome = "${storage}/codex-home:/app/codex-home";
