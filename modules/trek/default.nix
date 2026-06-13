@@ -97,7 +97,7 @@ in {
           OIDC_ONLY = lib.mkDefault true;
           OIDC_ADMIN_CLAIM = "groups";
           OIDC_ADMIN_VALUE = cfg.oidc.adminGroup;
-          OIDC_SCOPE = ''"openid profile email groups"'';
+          OIDC_SCOPE = "openid profile email groups";
         };
 
       port = 3000;

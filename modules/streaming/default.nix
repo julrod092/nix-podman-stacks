@@ -564,7 +564,7 @@ in {
         };
 
         ${quiName} = lib.mkIf cfg.qui.enable {
-          image = "ghcr.io/autobrr/qui:v1.19.0";
+          image = "ghcr.io/autobrr/qui:v1.20.0";
           volumeMap = {
             config = "${storage}/${quiName}:/config";
             media = "${mediaStorage}:/media";
@@ -629,7 +629,7 @@ in {
           '';
         in
           lib.mkIf cfg.jellyfin.enable {
-            image = "lscr.io/linuxserver/jellyfin:10.11.10";
+            image = "lscr.io/linuxserver/jellyfin:10.11.11";
             volumeMap = {
               config = "${storage}/${jellyfinName}:/config";
               media = "${mediaStorage}:/media";
@@ -783,7 +783,7 @@ in {
 
         ${radarrName} = lib.mkIf cfg.radarr.enable (mkArrBase radarrName
           // {
-            image = "lscr.io/linuxserver/radarr:6.1.1";
+            image = "lscr.io/linuxserver/radarr:6.2.1";
             port = 7878;
 
             homepage = {
@@ -829,7 +829,7 @@ in {
 
         ${prowlarrName} = lib.mkIf cfg.prowlarr.enable (mkArrBase prowlarrName
           // {
-            image = "lscr.io/linuxserver/prowlarr:2.3.5";
+            image = "lscr.io/linuxserver/prowlarr:2.4.0";
             port = 9696;
 
             homepage = {
