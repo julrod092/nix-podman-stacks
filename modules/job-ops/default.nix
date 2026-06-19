@@ -12,7 +12,7 @@
   category = "General";
   description = "Job Search Assistant";
   displayName = "JobOps";
-  version = "v0.9.0";
+  version = "v0.9.1";
 in {
   imports = import ../mkAliases.nix config lib name [containerName];
 
