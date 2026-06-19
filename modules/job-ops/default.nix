@@ -12,10 +12,7 @@
   category = "General";
   description = "Job Search Assistant";
   displayName = "JobOps";
-<<<<<<< HEAD
   version = "v0.10.0";
-=======
->>>>>>> e9c56c2 (Remove JobOps from rx-resume config)
 in {
   imports = import ../mkAliases.nix config lib name [containerName];
 
@@ -56,11 +53,7 @@ in {
     })
     {
       services.podman.containers.${containerName} = {
-<<<<<<< HEAD
         image = "ghcr.io/dakheera47/job-ops:${version}";
-=======
-        image = "ghcr.io/dakheera47/job-ops:v0.6.2";
->>>>>>> e9c56c2 (Remove JobOps from rx-resume config)
         volumeMap = {
           data = "${storage}/data:/app/data";
           codexHome = "${storage}/codex-home:/app/codex-home";
@@ -92,22 +85,14 @@ in {
           name = displayName;
           settings = {
             inherit description;
-<<<<<<< HEAD
             icon = "https://jobops.app/image.png";
-=======
-            icon = "job-ops";
->>>>>>> e9c56c2 (Remove JobOps from rx-resume config)
           };
         };
         glance = {
           inherit category description;
           name = displayName;
           id = containerName;
-<<<<<<< HEAD
           icon = "https://jobops.app/image.png";
-=======
-          icon = "sh:job-ops";
->>>>>>> e9c56c2 (Remove JobOps from rx-resume config)
         };
       };
     }
