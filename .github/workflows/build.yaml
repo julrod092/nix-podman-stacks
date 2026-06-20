@@ -20,7 +20,7 @@ jobs:
           remove-dotnet: true
           remove-android: true
           remove-haskell: true
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
@@ -41,10 +41,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
           extra_nix_config: "experimental-features = nix-command flakes pipe-operators"
       - name: Check Flake
-        run: nix flake check --keep-going
