@@ -35,11 +35,7 @@
         "/kitchenowl/",
         "/adventurelog/",
         "/kaneo/",
-<<<<<<< HEAD
         "/profilarr/"
-=======
-        "/appflowyinc/"
->>>>>>> f7ee0d7 (Add AppFlowy)
       ],
       "groupName": "{{parentDir}}"
     },

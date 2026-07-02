@@ -47,22 +47,6 @@ in {
         };
       };
 
-      appflowy = {
-        enable = true;
-        db.passwordFile = dummySecretFile;
-        gotrue = {
-          adminEmail = dummyEmail;
-          adminPasswordFile = dummySecretFile;
-          jwtSecretFile = dummySecretFile;
-        };
-        minio.rootPasswordFile = dummySecretFile;
-        oidc = {
-          enable = true;
-          clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
-        };
-      };
-
       aiostreams = {
         enable = true;
         secretKeyFile = dummySecretFile;
