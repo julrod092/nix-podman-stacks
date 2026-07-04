@@ -656,23 +656,17 @@ in {
         };
       };
 
-      reactive-resume = {
+      pinepods = {
         enable = true;
-        authSecretFile = dummySecretFile;
         db.passwordFile = dummySecretFile;
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
         };
-      };
-
-      job-ops = {
-        enable = true;
-        rxResumeApiKeyFile = dummySecretFile;
-        extraEnv = {
-          GMAIL_OAUTH_CLIENT_ID.fromFile = dummySecretFile;
-          GMAIL_OAUTH_CLIENT_SECRET.fromFile = dummySecretFile;
+        adminProvisioning = {
+          enable = true;
+          email = "admin@example.com";
+          passwordFile = dummySecretFile;
         };
       };
 
