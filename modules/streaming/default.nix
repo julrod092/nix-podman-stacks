@@ -588,6 +588,8 @@ in {
             (lib.optional cfg.qbittorrent.enable qbittorrentName)
             ++ (lib.optional cfg.qui.oidc.enable "authelia");
 
+          extraConfig.Container.HealthOnFailure = "kill";
+
           stack = stackName;
           port = 7476;
           traefik.name = quiName;
