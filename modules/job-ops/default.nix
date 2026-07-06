@@ -85,22 +85,14 @@ in {
           name = displayName;
           settings = {
             inherit description;
-<<<<<<< HEAD
             icon = "https://jobops.app/image.png";
-=======
-            icon = "job-ops";
->>>>>>> 612eb90 (Remove JobOps from rx-resume config)
           };
         };
         glance = {
           inherit category description;
           name = displayName;
           id = containerName;
-<<<<<<< HEAD
           icon = "https://jobops.app/image.png";
-=======
-          icon = "sh:job-ops";
->>>>>>> 612eb90 (Remove JobOps from rx-resume config)
         };
       };
     }
