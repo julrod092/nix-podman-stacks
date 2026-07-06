@@ -53,11 +53,7 @@ in {
     })
     {
       services.podman.containers.${containerName} = {
-<<<<<<< HEAD
         image = "ghcr.io/dakheera47/job-ops:${version}";
-=======
-        image = "ghcr.io/dakheera47/job-ops:v0.6.2";
->>>>>>> 612eb90 (Remove JobOps from rx-resume config)
         volumeMap = {
           data = "${storage}/data:/app/data";
           codexHome = "${storage}/codex-home:/app/codex-home";
