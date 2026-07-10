@@ -717,6 +717,19 @@ in {
         downloadDirectory = "${config.nps.storageBaseDir}/grimmory/bookdrop";
       };
 
+      sparky-fitness = {
+        enable = true;
+
+        betterAuthSecretFile = dummySecretFile;
+        apiEncryptionKeyFile = dummySecretFile;
+        db.passwordFile = dummySecretFile;
+
+        oidc = {
+          enable = true;
+          clientSecretFile = dummySecretFile;
+        };
+      };
+
       sshwifty = {
         enable = true;
         settings = {
