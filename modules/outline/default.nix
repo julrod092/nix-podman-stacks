@@ -126,9 +126,7 @@ in {
         image = "docker.io/outlinewiki/outline:1.9.0";
         user = "${toString config.nps.defaultUid}:${toString config.nps.defaultGid}";
         volumeMap.data = "${storage}/data:/var/lib/outline/data";
-        extraEnv = let
-          utils = import ../utils.nix {inherit lib config;};
-        in
+        extraEnv =
           {
             URL = cfg.containers.${name}.traefik.serviceUrl;
             PORT = 3000;
