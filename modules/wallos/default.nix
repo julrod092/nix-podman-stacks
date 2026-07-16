@@ -19,12 +19,12 @@ in {
   options.nps.stacks.${name} = {
     enable = lib.mkEnableOption name;
     oidc = {
-      registerClient = lib.mkOption {
+      enable = lib.mkOption {
         type = lib.types.bool;
         default = false;
         description = ''
-          Whether to register a OIDC client in Authelia.
-          If enabled you need to provide a hashed secret in the `client_secret` option.
+          Whether to enable OIDC login with Authelia. This will register an OIDC client in Authelia
+          and setup the necessary configuration.
 
           To enable OIDC Login, you will have to set it up in Web-UI.
           For details, see:
@@ -33,7 +33,8 @@ in {
           - <https://github.com/ellite/Wallos?tab=readme-ov-file#oidc>
         '';
       };
-      clientSecretHash = (import ../authelia/options.nix lib).clientSecretHash;
+      clientSecretFile = (import ../authelia/options.nix lib).clientSecretFile;
+      clientSecretHash = (import ../authelia/options.nix lib).derivableClientSecretHash cfg.oidc.clientSecretFile;
       userGroup = lib.mkOption {
         type = lib.types.str;
         default = "${name}_user";
@@ -43,10 +44,10 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    nps.stacks.lldap.bootstrap.groups = lib.mkIf cfg.oidc.registerClient {
+    nps.stacks.lldap.bootstrap.groups = lib.mkIf cfg.oidc.enable {
       ${cfg.oidc.userGroup} = {};
     };
-    nps.stacks.authelia = lib.mkIf cfg.oidc.registerClient {
+    nps.stacks.authelia = lib.mkIf cfg.oidc.enable {
       oidc.clients.${name} = {
         client_name = displayName;
         client_secret = cfg.oidc.clientSecretHash;
@@ -79,6 +80,19 @@ in {
         volumeMap = {
           db = "${storage}/db:/var/www/html/db";
           logos = "${storage}/logos:/var/www/html/images/uploads/logos";
+        };
+
+        extraEnv = lib.optionalAttrs cfg.oidc.enable {
+          OIDC_ENABLED = true;
+          OIDC_PROVIDER_NAME = "Authelia";
+          OIDC_CLIENT_ID = name;
+          OIDC_CLIENT_SECRET.fromFile = cfg.oidc.clientSecretFile;
+          OIDC_ISSUER = config.nps.containers.authelia.traefik.serviceUrl;
+          OIDC_REDIRECT_URL = "${cfg.containers.${name}.traefik.serviceUrl}/index.php";
+          OIDC_USER_IDENTIFIER = "sub";
+          OIDC_SCOPES = "openid profile email";
+          OIDC_AUTO_CREATE_USER = lib.mkDefault true;
+          OIDC_DISABLE_PASSWORD_LOGIN = lib.mkDefault true;
         };
 
         stack = name;
