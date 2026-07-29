@@ -93,6 +93,7 @@ in {
           OIDC_SCOPES = "openid profile email";
           OIDC_AUTO_CREATE_USER = lib.mkDefault true;
           OIDC_DISABLE_PASSWORD_LOGIN = lib.mkDefault true;
+          SSRF_ALLOWLIST = config.nps.containers.authelia.traefik.serviceHost;
         };
 
         stack = name;
