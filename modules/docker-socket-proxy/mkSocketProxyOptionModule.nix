@@ -39,7 +39,7 @@ in {
     services.podman.containers.${container} = {
       # Socket Proxy option exists, but it not used.
       # Mount the socket directly then.
-      volumeMap.socket = lib.mkIf (!cfg.useSocketProxy) "${config.nps.socketLocation}:${targetLocation}:ro";
+      volumeMap.podman-socket = lib.mkIf (!cfg.useSocketProxy) "${config.nps.socketLocation}:${targetLocation}:ro";
 
       # If socket-proxy is used, add the container to its bridge network so the proxy can be reached
       network = lib.optional cfg.useSocketProxy "docker-socket-proxy";

@@ -33,7 +33,7 @@ in {
     services.podman.containers.${name} = {
       image = "ghcr.io/tecnativa/docker-socket-proxy:v0.5.0";
 
-      volumeMap.socket = "${config.nps.socketLocation}:/var/run/docker.sock:ro";
+      volumeMap.podman-socket = "${config.nps.socketLocation}:/var/run/docker.sock:ro";
 
       dependsOn = ["podman.socket"];
 

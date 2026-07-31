@@ -22,6 +22,7 @@ in {
     [
       (import ../docker-socket-proxy/mkSocketProxyOptionModule.nix {
         stack = name;
+        container = agentName;
         targetLocation = socketTargetLocation;
       })
     ]
@@ -32,24 +33,35 @@ in {
 
   options.nps.stacks.${name} = {
     enable = lib.mkEnableOption name;
+    adminProvisioning = {
+      email = lib.mkOption {
+        type = lib.types.str;
+        description = "Email address for the initial admin user";
+      };
+      passwordFile = lib.mkOption {
+        type = lib.types.path;
+        description = "Path to a file containing the initial admin user password.";
+      };
+    };
+    tokenFile = lib.mkOption {
+      type = lib.types.path;
+      description = ''
+        Path to a file containing the Beszel token (UUIDv4). The token is used by the agent to self-register itself at the hub.
+        Can be generated using `uuidgen`
+      '';
+    };
     ed25519PrivateKeyFile = lib.mkOption {
-      type = lib.types.nullOr lib.types.path;
-      default = null;
+      type = lib.types.path;
       description = ''
         Path to private SSH key that will be used by the hub to authenticate against agent
-        If not provided, the hub will generate a new key pair when starting.
       '';
     };
     ed25519PublicKeyFile = lib.mkOption {
-      type = lib.types.nullOr lib.types.path;
-      default = null;
+      type = lib.types.path;
       description = ''
         Path to public SSH key of the hub that will be considered authorized by agent
-        If not provided, the `KEY` environment variable should be set to the public key of the hub,
-        in order for the connection from hub to agent to work.
       '';
     };
-
     settings = lib.mkOption {
       type = lib.types.nullOr yaml.type;
       default = null;
@@ -57,18 +69,21 @@ in {
         if (settings != null)
         then yaml.generate "config.yml" settings
         else null;
-
       description = ''
         System configuration (optional).
         If provided, on each restart, systems in the database will be updated to match the systems defined in the settings.
-        To see your current configuration, refer to settings -> YAML Config -> Export configuration
+        To see your current configuration, refer to settings -> YAML Config -> Export configuration.
+
+        The module will configure a single system called "Local" that connects to the Beszel hub through the beszel socket.
+
+        The config will be templated using `gomplate`, so you can refer to secrets etc.
       '';
       example = {
         systems = [
           {
-            name = "Local";
-            host = "/beszel_socket/beszel.sock";
-            port = 45876;
+            name = "Some Remote System";
+            host = "some.remote.host";
+            token = ''{{ file.Read `''${config.sops.secrets."BESZEL_REMOTE_TOKEN".path}`}}'';
             users = ["admin@example.com"];
           }
         ];
@@ -126,6 +141,17 @@ in {
       };
     };
 
+    nps.stacks.beszel.settings = {
+      systems = [
+        {
+          name = "Local";
+          host = "/beszel_socket/beszel.sock";
+          token = "{{ file.Read `${cfg.tokenFile}`}}";
+          users = [cfg.adminProvisioning.email];
+        }
+      ];
+    };
+
     services.podman.containers = {
       ${name} = {
         image = "ghcr.io/henrygd/beszel/beszel:0.18.7";
@@ -134,14 +160,20 @@ in {
             data = "${storage}/data:/beszel_data";
             socket = "${storage}/beszel_socket:/beszel_socket";
           }
-          // lib.optionalAttrs (cfg.settings != null) {config = "${cfg.settings}:/beszel_data/config.yml";}
           // lib.optionalAttrs (cfg.ed25519PrivateKeyFile != null) {privateKey = "${cfg.ed25519PrivateKeyFile}:/beszel_data/id_ed25519";}
           // lib.optionalAttrs (cfg.ed25519PublicKeyFile != null) {publicKey = "${cfg.ed25519PublicKeyFile}:/beszel_data/id_ed25519.pub";};
 
-        environment = {
-          SHARE_ALL_SYSTEMS = true;
+        templateMount = lib.optional (cfg.settings != null) {
+          templatePath = cfg.settings;
+          destPath = "/beszel_data/config.yml";
+        };
+
+        extraEnv = {
           # If Authelia is enabled, allow automatic user creation on OIDC login.
           USER_CREATION = cfg.oidc.registerClient;
+
+          USER_EMAIL = cfg.adminProvisioning.email;
+          USER_PASSWORD.fromFile = cfg.adminProvisioning.passwordFile;
         };
 
         port = 8090;
@@ -166,8 +198,6 @@ in {
         image = "ghcr.io/henrygd/beszel/beszel-agent:0.18.7";
         volumeMap.socket = "${storage}/beszel_socket:/beszel_socket";
 
-        fileEnvMount.KEY_FILE = lib.mkIf (cfg.ed25519PublicKeyFile != null) cfg.ed25519PublicKeyFile;
-
         # No way to connect to socket proxy through host network yet
         # Check traefik tcp router with socket activation eventually
         network =
@@ -175,14 +205,16 @@ in {
           then ["host"]
           else [config.nps.stacks.traefik.network.name];
 
-        environment = {
+        extraEnv = {
+          KEY.fromFile = cfg.ed25519PublicKeyFile;
           LISTEN = "/beszel_socket/beszel.sock";
+          TOKEN.fromFile = cfg.tokenFile;
+          HUB_URL = cfg.containers.${name}.traefik.serviceUrl;
           DOCKER_HOST =
             if !cfg.useSocketProxy
             then "unix://${socketTargetLocation}"
             else config.nps.stacks.docker-socket-proxy.address;
         };
-
         glance = {
           inherit category;
           parent = name;
