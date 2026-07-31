@@ -98,6 +98,11 @@ in {
         enable = true;
         ed25519PrivateKeyFile = dummySecretFile;
         ed25519PublicKeyFile = dummySecretFile;
+        tokenFile = dummySecretFile;
+        adminProvisioning = {
+          email = "admin@admin.com";
+          passwordFile = dummySecretFile;
+        };
         oidc = {
           registerClient = true;
           clientSecretHash = dummyHash;
