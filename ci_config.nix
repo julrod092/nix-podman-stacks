@@ -391,6 +391,20 @@ in {
 
       homeassistant.enable = true;
 
+      homelable = {
+        enable = true;
+        mcp = {
+          enable = true;
+          apiKeyFile = dummySecretFile;
+          serviceKeyFile = dummySecretFile;
+        };
+        oidc = {
+          enable = true;
+          clientSecretFile = dummySecretFile;
+          clientSecretHash = dummyHash;
+        };
+      };
+
       homebox = {
         enable = true;
         apiKeyPepperFile = dummySecretFile;

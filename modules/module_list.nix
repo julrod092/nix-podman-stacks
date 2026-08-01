@@ -35,6 +35,7 @@ let
     healthchecks = ./healthchecks;
     homeassistant = ./homeassistant;
     homebox = ./homebox;
+    homelable = ./homelable;
     homepage = ./homepage;
     hortusfox = ./hortusfox;
     immich = ./immich;

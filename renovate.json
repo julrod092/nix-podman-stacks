@@ -36,7 +36,8 @@
         "/adventurelog/",
         "/kaneo/",
         "/profilarr/",
-        "/sparkyfitness/"
+        "/sparkyfitness/",
+        "/homelable/"
       ],
       "groupName": "{{parentDir}}"
     },
