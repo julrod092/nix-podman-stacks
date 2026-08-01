@@ -393,6 +393,7 @@ in {
 
       homelable = {
         enable = true;
+        secretKeyFile = dummySecretFile;
         mcp = {
           enable = true;
           apiKeyFile = dummySecretFile;
