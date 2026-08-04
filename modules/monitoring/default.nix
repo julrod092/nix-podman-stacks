@@ -182,6 +182,18 @@ in {
         // {
           default = true;
         };
+      collectByDefault = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = ''
+          Whether to collect logs from a containers by default.
+          If set to `false`, only containers that explicitly set the `alloy.enable=true` option will be collected.
+
+          If set to `true`, you can opt out for individual containers by setting `alloy.enable=false` in the container's configuration.
+
+          See <https://tarow.github.io/nix-podman-stacks/docs/container-options.html#services.podman.containers.%3Cname%3E.alloy.enable>
+        '';
+      };
       port = lib.mkOption {
         type = lib.types.port;
         default = 12345;
@@ -395,106 +407,102 @@ in {
       };
     };
 
-    services.podman.containers = lib.mkMerge [
-      (lib.optionalAttrs cfg.grafana.enable {
-        ${grafanaName} = {
-          image = "docker.io/grafana/grafana:13.1.1";
-          user = config.nps.defaultUid;
-          volumeMap = {
-            data = "${storage}/grafana/data:/var/lib/grafana";
-            settings = "${cfg.grafana.settings}:/etc/grafana/grafana.ini";
-            datasources = "${cfg.grafana.datasources}:/etc/grafana/provisioning/datasources/datasources.yaml";
-            dashboardProvider = "${cfg.grafana.dashboardProvider}:/etc/grafana/provisioning/dashboards/provider.yml";
-            dashboards = "${dashboards}:${dashboardPath}";
+    services.podman.containers = {
+      ${grafanaName} = lib.mkIf cfg.grafana.enable {
+        image = "docker.io/grafana/grafana:13.2.0";
+        user = config.nps.defaultUid;
+        volumeMap = {
+          data = "${storage}/grafana/data:/var/lib/grafana";
+          settings = "${cfg.grafana.settings}:/etc/grafana/grafana.ini";
+          datasources = "${cfg.grafana.datasources}:/etc/grafana/provisioning/datasources/datasources.yaml";
+          dashboardProvider = "${cfg.grafana.dashboardProvider}:/etc/grafana/provisioning/dashboards/provider.yml";
+          dashboards = "${dashboards}:${dashboardPath}";
+        };
+
+        environment = lib.optionalAttrs (!cfg.grafana.oidc.enable) {
+          GF_AUTH_ANONYMOUS_ENABLED = "true";
+          GF_AUTH_ANONYMOUS_ORG_ROLE = "Admin";
+          GF_AUTH_DISABLE_LOGIN_FORM = "true";
+        };
+
+        extraEnv = let
+          autheliaUrl = config.nps.containers.authelia.traefik.serviceUrl;
+        in
+          lib.optionalAttrs (cfg.grafana.oidc.enable) {
+            GF_SERVER_ROOT_URL = cfg.containers.${grafanaName}.traefik.serviceUrl;
+            GF_AUTH_GENERIC_OAUTH_ENABLED = true;
+            GF_AUTH_GENERIC_OAUTH_NAME = "Authelia";
+            GF_AUTH_GENERIC_OAUTH_ICON = "signin";
+            GF_AUTH_GENERIC_OAUTH_CLIENT_ID = grafanaName;
+            GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET.fromFile = cfg.grafana.oidc.clientSecretFile;
+            GF_AUTH_GENERIC_OAUTH_SCOPES = "openid,profile,email,groups";
+            GF_AUTH_GENERIC_OAUTH_EMPTY_SCOPES = false;
+            GF_AUTH_GENERIC_OAUTH_AUTH_URL = "${autheliaUrl}/api/oidc/authorization";
+            GF_AUTH_GENERIC_OAUTH_TOKEN_URL = "${autheliaUrl}/api/oidc/token";
+            GF_AUTH_GENERIC_OAUTH_API_URL = "${autheliaUrl}/api/oidc/userinfo";
+            GF_AUTH_GENERIC_OAUTH_USE_PKCE = true;
+            GF_AUTH_GENERIC_OAUTH_LOGIN_ATTRIBUTE_PATH = "preferred_username";
+            GF_AUTH_GENERIC_OAUTH_GROUPS_ATTRIBUTE_PATH = "groups";
+            GF_AUTH_GENERIC_OAUTH_EMAIL_ATTRIBUTE_NAME = "email";
+            GF_AUTH_GENERIC_OAUTH_NAME_ATTRIBUTE_PATH = "name";
+            GF_AUTH_GENERIC_OAUTH_ALLOW_ASSIGN_GRAFANA_ADMIN = true;
+            # Quadlet Generator seems to not handle the single quotes too well, pass fromFile instead
+            GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH.fromFile = pkgs.writeText "role_attribute_path" ''contains(groups[*], '${cfg.grafana.oidc.adminGroup}') && 'Admin' ||  contains(groups[*], '${cfg.grafana.oidc.userGroup}') && 'Viewer' || 'None' '';
           };
 
-          environment = lib.optionalAttrs (!cfg.grafana.oidc.enable) {
-            GF_AUTH_ANONYMOUS_ENABLED = "true";
-            GF_AUTH_ANONYMOUS_ORG_ROLE = "Admin";
-            GF_AUTH_DISABLE_LOGIN_FORM = "true";
-          };
-
-          extraEnv = let
-            autheliaUrl = config.nps.containers.authelia.traefik.serviceUrl;
-          in
-            lib.optionalAttrs (cfg.grafana.oidc.enable) {
-              GF_SERVER_ROOT_URL = cfg.containers.${grafanaName}.traefik.serviceUrl;
-              GF_AUTH_GENERIC_OAUTH_ENABLED = true;
-              GF_AUTH_GENERIC_OAUTH_NAME = "Authelia";
-              GF_AUTH_GENERIC_OAUTH_ICON = "signin";
-              GF_AUTH_GENERIC_OAUTH_CLIENT_ID = grafanaName;
-              GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET.fromFile = cfg.grafana.oidc.clientSecretFile;
-              GF_AUTH_GENERIC_OAUTH_SCOPES = "openid,profile,email,groups";
-              GF_AUTH_GENERIC_OAUTH_EMPTY_SCOPES = false;
-              GF_AUTH_GENERIC_OAUTH_AUTH_URL = "${autheliaUrl}/api/oidc/authorization";
-              GF_AUTH_GENERIC_OAUTH_TOKEN_URL = "${autheliaUrl}/api/oidc/token";
-              GF_AUTH_GENERIC_OAUTH_API_URL = "${autheliaUrl}/api/oidc/userinfo";
-              GF_AUTH_GENERIC_OAUTH_USE_PKCE = true;
-              GF_AUTH_GENERIC_OAUTH_LOGIN_ATTRIBUTE_PATH = "preferred_username";
-              GF_AUTH_GENERIC_OAUTH_GROUPS_ATTRIBUTE_PATH = "groups";
-              GF_AUTH_GENERIC_OAUTH_EMAIL_ATTRIBUTE_NAME = "email";
-              GF_AUTH_GENERIC_OAUTH_NAME_ATTRIBUTE_PATH = "name";
-              GF_AUTH_GENERIC_OAUTH_ALLOW_ASSIGN_GRAFANA_ADMIN = true;
-              # Quadlet Generator seems to not handle the single quotes too well, pass fromFile instead
-              GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH.fromFile = pkgs.writeText "role_attribute_path" ''contains(groups[*], '${cfg.grafana.oidc.adminGroup}') && 'Admin' ||  contains(groups[*], '${cfg.grafana.oidc.userGroup}') && 'Viewer' || 'None' '';
-            };
-
-          port = 3000;
-          stack = stackName;
-          traefik.name = grafanaName;
-          homepage = {
-            inherit category;
-            name = grafanaDisplayName;
-            settings = {
-              description = grafanaDescription;
-              icon = "grafana";
-              widget.type = "grafana";
-            };
-          };
-          glance = {
-            inherit category;
+        port = 3000;
+        stack = stackName;
+        traefik.name = grafanaName;
+        homepage = {
+          inherit category;
+          name = grafanaDisplayName;
+          settings = {
             description = grafanaDescription;
-            name = grafanaDisplayName;
-            id = grafanaName;
-            icon = "di:grafana";
+            icon = "grafana";
+            widget.type = "grafana";
           };
         };
-      })
+        glance = {
+          inherit category;
+          description = grafanaDescription;
+          name = grafanaDisplayName;
+          id = grafanaName;
+          icon = "di:grafana";
+        };
+      };
 
-      (lib.optionalAttrs cfg.loki.enable {
-        ${lokiName} = {
-          image = "docker.io/grafana/loki:3.7.4";
-          exec = "-config.file=/etc/loki/local-config.yaml";
-          user = config.nps.defaultUid;
-          volumeMap = {
-            data = "${storage}/loki/data:/loki";
-            settings = "${cfg.loki.config}:/etc/loki/local-config.yaml";
-          };
+      ${lokiName} = lib.mkIf cfg.loki.enable {
+        image = "docker.io/grafana/loki:3.7.6";
+        exec = "-config.file=/etc/loki/local-config.yaml";
+        user = config.nps.defaultUid;
+        volumeMap = {
+          data = "${storage}/loki/data:/loki";
+          settings = "${cfg.loki.config}:/etc/loki/local-config.yaml";
+        };
 
-          stack = stackName;
-          homepage = {
-            inherit category;
-            name = lokiDisplayName;
-            settings = {
-              description = lokiDescription;
-              icon = "loki";
-            };
-          };
-          glance = {
-            inherit category;
+        stack = stackName;
+        homepage = {
+          inherit category;
+          name = lokiDisplayName;
+          settings = {
             description = lokiDescription;
-            name = lokiDisplayName;
-            id = lokiName;
-            icon = "di:loki";
+            icon = "loki";
           };
         };
-      })
+        glance = {
+          inherit category;
+          description = lokiDescription;
+          name = lokiDisplayName;
+          id = lokiName;
+          icon = "di:loki";
+        };
+      };
 
-      (lib.optionalAttrs cfg.alloy.enable {
-        ${alloyName} = let
-          configDst = "/etc/alloy/config.alloy";
-        in {
-          image = "docker.io/grafana/alloy:v1.18.0";
+      ${alloyName} = let
+        configDst = "/etc/alloy/config.alloy";
+      in
+        lib.mkIf cfg.alloy.enable {
+          image = "docker.io/grafana/alloy:v1.18.1";
           volumeMap.settings = "${cfg.alloy.config}:${configDst}";
           exec = "run --server.http.listen-addr=0.0.0.0:${toString cfg.alloy.port} --storage.path=/var/lib/alloy/data ${configDst}";
 
@@ -517,13 +525,12 @@ in {
             icon = "di:alloy";
           };
         };
-      })
 
-      (lib.optionalAttrs cfg.prometheus.enable {
-        ${prometheusName} = let
-          configDst = "/etc/prometheus/prometheus.yml";
-        in {
-          image = "docker.io/prom/prometheus:v3.13.2";
+      ${prometheusName} = let
+        configDst = "/etc/prometheus/prometheus.yml";
+      in
+        lib.mkIf cfg.prometheus.enable {
+          image = "docker.io/prom/prometheus:v3.14.0";
           exec = "--config.file=${configDst}";
           user = config.nps.defaultUid;
           volumeMap = {
@@ -552,99 +559,92 @@ in {
             icon = "di:prometheus";
           };
         };
-      })
 
-      (lib.optionalAttrs cfg.podmanExporter.enable {
-        ${podmanExporterName} = {
-          image = "quay.io/navidys/prometheus-podman-exporter:v1.21.2";
-          volumeMap.socket = "${config.nps.socketLocation}:/var/run/podman/podman.sock";
+      ${podmanExporterName} = lib.mkIf cfg.podmanExporter.enable {
+        image = "quay.io/navidys/prometheus-podman-exporter:v1.21.2";
+        volumeMap.socket = "${config.nps.socketLocation}:/var/run/podman/podman.sock";
 
-          environment.CONTAINER_HOST = "unix:///var/run/podman/podman.sock";
-          user = config.nps.defaultUid;
-          extraPodmanArgs = ["--security-opt=label=disable"];
+        environment.CONTAINER_HOST = "unix:///var/run/podman/podman.sock";
+        user = config.nps.defaultUid;
+        extraPodmanArgs = ["--security-opt=label=disable"];
 
-          stack = stackName;
-          homepage = {
-            inherit category;
-            name = podmanExporterDisplayName;
-            settings = {
-              description = podmanExporterDescription;
-              icon = "podman";
-            };
-          };
-          glance = {
-            inherit category;
+        stack = stackName;
+        homepage = {
+          inherit category;
+          name = podmanExporterDisplayName;
+          settings = {
             description = podmanExporterDescription;
-            name = podmanExporterDisplayName;
-            id = podmanExporterName;
-            icon = "di:podman";
+            icon = "podman";
           };
         };
-      })
+        glance = {
+          inherit category;
+          description = podmanExporterDescription;
+          name = podmanExporterDisplayName;
+          id = podmanExporterName;
+          icon = "di:podman";
+        };
+      };
 
-      (lib.optionalAttrs cfg.alertmanager.enable {
-        ${alertmanagerName} = {
-          image = "docker.io/prom/alertmanager:v0.33.1";
-          user = config.nps.defaultUid;
-          volumeMap = {
-            settings = "${cfg.alertmanager.settings}:/config/alertmanager.yml";
-            data = "${storage}/${alertmanagerName}:/data";
-          };
-          exec = "--config.file=/config/alertmanager.yml --storage.path=/data";
+      ${alertmanagerName} = lib.mkIf cfg.alertmanager.enable {
+        image = "docker.io/prom/alertmanager:v0.34.0";
+        user = config.nps.defaultUid;
+        volumeMap = {
+          settings = "${cfg.alertmanager.settings}:/config/alertmanager.yml";
+          data = "${storage}/${alertmanagerName}:/data";
+        };
+        exec = "--config.file=/config/alertmanager.yml --storage.path=/data";
 
-          stack = stackName;
-          port = 9093;
-          traefik.name = alertmanagerName;
+        stack = stackName;
+        port = 9093;
+        traefik.name = alertmanagerName;
 
-          homepage = {
-            inherit category;
-            name = alertmanagerDisplayName;
-            settings = {
-              description = alertmanagerDescription;
-              icon = "alertmanager";
-            };
-          };
-          glance = {
-            inherit category;
+        homepage = {
+          inherit category;
+          name = alertmanagerDisplayName;
+          settings = {
             description = alertmanagerDescription;
-            name = alertmanagerDisplayName;
-            id = alertmanagerName;
-            icon = "di:alertmanager";
+            icon = "alertmanager";
           };
         };
-      })
+        glance = {
+          inherit category;
+          description = alertmanagerDescription;
+          name = alertmanagerDisplayName;
+          id = alertmanagerName;
+          icon = "di:alertmanager";
+        };
+      };
 
-      (lib.optionalAttrs (cfg.alertmanager.enable && cfg.alertmanager.ntfy.enable) {
-        ${alertmanagerNtfyName} = {
-          image = "ghcr.io/alexbakker/alertmanager-ntfy:1.2.1";
-          volumeMap.settings = "${cfg.alertmanager.ntfy.settings}:/etc/config.yml";
-          templateMount = lib.optional (cfg.alertmanager.ntfy.tokenFile != null) {
-            templatePath = yaml.generate "auth.yaml" {ntfy.auth.token = "{{file.Read `${cfg.alertmanager.ntfy.tokenFile}`}}";};
-            destPath = "/etc/auth.yml";
-          };
-          exec = "--configs /etc/config.yml" + lib.optionalString (cfg.alertmanager.ntfy.tokenFile != null) ",/etc/auth.yml";
+      ${alertmanagerNtfyName} = lib.mkIf (cfg.alertmanager.enable && cfg.alertmanager.ntfy.enable) {
+        image = "ghcr.io/alexbakker/alertmanager-ntfy:1.2.1";
+        volumeMap.settings = "${cfg.alertmanager.ntfy.settings}:/etc/config.yml";
+        templateMount = lib.optional (cfg.alertmanager.ntfy.tokenFile != null) {
+          templatePath = yaml.generate "auth.yaml" {ntfy.auth.token = "{{file.Read `${cfg.alertmanager.ntfy.tokenFile}`}}";};
+          destPath = "/etc/auth.yml";
+        };
+        exec = "--configs /etc/config.yml" + lib.optionalString (cfg.alertmanager.ntfy.tokenFile != null) ",/etc/auth.yml";
 
-          # Join both ntfy and monitoring network
-          stack = stackName;
-          network = ["ntfy"];
+        # Join both ntfy and monitoring network
+        stack = stackName;
+        network = ["ntfy"];
 
-          homepage = {
-            inherit category;
-            name = alertmanagerNtfyDisplayName;
-            settings = {
-              description = alertmanagerNtfyDescription;
-              icon = "ntfy";
-            };
-          };
-          glance = {
-            inherit category;
+        homepage = {
+          inherit category;
+          name = alertmanagerNtfyDisplayName;
+          settings = {
             description = alertmanagerNtfyDescription;
-            name = alertmanagerNtfyDisplayName;
-            id = alertmanagerNtfyName;
-            icon = "di:ntfy";
+            icon = "ntfy";
           };
         };
-      })
-    ];
+        glance = {
+          inherit category;
+          description = alertmanagerNtfyDescription;
+          name = alertmanagerNtfyDisplayName;
+          id = alertmanagerNtfyName;
+          icon = "di:ntfy";
+        };
+      };
+    };
   };
 }
