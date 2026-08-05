@@ -340,7 +340,9 @@ in {
         |> lib.map (c: c.traefik.serviceHost);
 
       traefik.name = name;
-      alloy.enable = true;
+      alloy = lib.mkIf cfg.enableGrafanaAccessLogDashboard {
+        enable = true;
+      };
       homepage = {
         inherit category;
         name = displayName;
