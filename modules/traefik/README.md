@@ -53,3 +53,17 @@ Modern HTTP reverse proxy
   };
 }
 ```
+
+### With file provider
+
+```nix
+{config, ...}: {
+  nps.stacks.traefik = {
+    enable = true;
+
+    domain = "example.com";
+    extraEnv.CF_DNS_API_TOKEN.fromFile = config.sops.secrets."traefik/cf_api_token".path;
+    provider = "file";
+  };
+}
+```

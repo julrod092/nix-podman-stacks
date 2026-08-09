@@ -35,6 +35,20 @@ in {
       type = lib.types.str;
       description = "Base domain handled by Traefik";
     };
+    provider = lib.options.mkOption {
+      type = lib.types.enum [
+        "docker"
+        "file"
+      ];
+      default = "docker";
+      description = ''
+        How services are registered in Traefik.
+        "docker" (default): routes are created via container labels (Docker provider).
+        "file": routes and services are generated into the dynamic config file.
+          This is required for on-demand setups (e.g. Sablier), where stopped containers
+          are removed by Quadlet and their labels can therefore not be read anymore.
+      '';
+    };
     ip4 = lib.options.mkOption {
       type = lib.types.str;
       readOnly = true;
@@ -309,10 +323,6 @@ in {
         staticConfig = "${cfg.staticConfig}:/etc/traefik/traefik.yml:ro";
         dynamicConfig = "${yaml.generate "dynamic.yml" cfg.dynamicConfig}:/dynamic/config.yml";
         geoBlockDb = "${./config/IP2LOCATION-LITE-DB1.IPV6.BIN}:/plugins/geoblock/IP2LOCATION-LITE-DB1.IPV6.BIN";
-      };
-
-      labels = {
-        "traefik.http.routers.${traefik.name}.service" = "api@internal";
       };
 
       wantsContainer = lib.optional cfg.crowdsec.middleware.enable "crowdsec";

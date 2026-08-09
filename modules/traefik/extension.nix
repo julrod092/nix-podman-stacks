@@ -1,10 +1,9 @@
 {
   lib,
   config,
-  pkgs,
   ...
 }: let
-  utils = pkgs.callPackage ../utils.nix {inherit config;};
+  moduleName = "traefik";
   stackCfg = config.nps.stacks.traefik;
 
   ip4Address = config.nps.hostIP4Address;
@@ -186,21 +185,26 @@ in {
             traefik.middleware.private.enable = !config.expose;
             traefik.middleware.public.enable = config.expose;
 
-            labels = lib.optionalAttrs enableTraefik (
-              {
-                "traefik.enable" = "true";
-                "traefik.http.routers.${name}.rule" = ''Host(`${traefikCfg.serviceHost}`)'';
-                # "traefik.http.routers.${name}.entrypoints" = "websecure,websecure-internal";
-                "traefik.http.routers.${name}.service" = lib.mkDefault name;
-              }
-              // lib.optionalAttrs (containerPort != null) {
-                "traefik.http.services.${name}.loadbalancer.server.port" = containerPort;
-              }
-              // {
-                "traefik.http.routers.${name}.middlewares" = builtins.concatStringsSep "," (
-                  map (m: "${m}@file") enabledMiddlewares
-                );
-              }
+            labels = lib.mkIf (stackCfg.provider == "docker") (
+              lib.optionalAttrs enableTraefik (
+                {
+                  "traefik.enable" = "true";
+                  "traefik.http.routers.${name}.rule" = ''Host(`${traefikCfg.serviceHost}`)'';
+                  # "traefik.http.routers.${name}.entrypoints" = "websecure,websecure-internal";
+                  "traefik.http.routers.${name}.service" =
+                    if name == moduleName
+                    then "api@internal"
+                    else lib.mkDefault name;
+                }
+                // lib.optionalAttrs (containerPort != null) {
+                  "traefik.http.services.${name}.loadbalancer.server.port" = containerPort;
+                }
+                // {
+                  "traefik.http.routers.${name}.middlewares" = builtins.concatStringsSep "," (
+                    map (m: "${m}@file") enabledMiddlewares
+                  );
+                }
+              )
             );
             network = lib.mkIf enableTraefik [stackCfg.network.name];
             ports = lib.optional (!enableTraefik && (port != null)) "${hostPort}:${containerPort}";
@@ -217,6 +221,37 @@ in {
       |> lib.filter (c: c.traefik.name != null && c.traefik.middleware != {});
   in
     lib.mkIf stackCfg.enable {
+      nps.stacks.traefik.dynamicConfig = lib.mkIf (stackCfg.provider == "file") (let
+        routedContainers =
+          lib.filterAttrs (_: c: c.traefik.name != null) config.services.podman.containers;
+      in {
+        http = {
+          routers =
+            lib.mapAttrs (cName: c: {
+              rule = "Host(`${c.traefik.serviceHost}`)";
+              service =
+                if cName == moduleName
+                then "api@internal"
+                else cName;
+              middlewares =
+                c.traefik.middleware
+                |> lib.filterAttrs (_: v: v.enable)
+                |> lib.attrsToList
+                |> lib.sortOn (m: m.value.order)
+                |> map (m: m.name);
+            })
+            routedContainers;
+          services =
+            lib.filterAttrs (cName: _: cName != moduleName) routedContainers
+            |> lib.mapAttrs (cName: c: {
+              loadBalancer.servers = [
+                {
+                  url = "http://${c.traefik.serviceAddressInternal}";
+                }
+              ];
+            });
+        };
+      });
       assertions = [
         {
           message = "A Traefik middleware was referenced that is not registered";
