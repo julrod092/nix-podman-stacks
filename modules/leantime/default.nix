@@ -120,7 +120,7 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "docker.io/leantime/leantime:latest";
+        image = "docker.io/leantime/leantime:3.9.8";
 
         volumeMap = {
           publicUserfile = "${storage}/userfiles:/var/www/html/public/userfiles";
@@ -160,6 +160,8 @@ in {
             LEAN_OIDC_CREATE_USER = true;
             LEAN_OIDC_DEFAULT_ROLE = 20; # Editor
           };
+
+        wantsContainer = [dbName];
 
         stack = name;
         port = 8080;
