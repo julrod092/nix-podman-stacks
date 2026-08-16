@@ -20,6 +20,7 @@
   seerrName = "seerr";
   profilarrName = "profilarr";
   profilarrParserName = "${profilarrName}-parser";
+  maintainerrName = "maintainerr";
 
   category = "Media & Downloads";
   qbittorrentDescription = "BitTorrent Client";
@@ -42,6 +43,9 @@
   seerrDisplayName = "Seerr";
   profilarrDisplayName = "Profilarr";
   profilarrDescription = "Configuration Management";
+
+  maintainerrDisplayName = "Maintainerr";
+  maintainerrDescription = "Library Maintenance";
 
   gluetunCategory = "Network & Administration";
   gluetunDescription = "VPN client";
@@ -190,6 +194,7 @@ in {
     seerrName
     profilarrName
     profilarrParserName
+    maintainerrName
   ];
 
   options.nps.stacks.${stackName} =
@@ -387,6 +392,7 @@ in {
         // {
           default = true;
         };
+      maintainerr.enable = lib.mkEnableOption "Maintainerr";
     }
     // (
       lib.genAttrs
@@ -767,6 +773,34 @@ in {
             name = seerrDisplayName;
             id = seerrName;
             icon = "di:overseerr";
+          };
+        };
+
+        ${maintainerrName} = lib.mkIf cfg.maintainerr.enable {
+          image = "ghcr.io/maintainerr/maintainerr:3.22.1";
+          user = "${toString config.nps.defaultUid}:${toString config.nps.defaultGid}";
+          volumeMap = {
+            data = "${storage}/${maintainerrName}/data:/opt/data";
+            media = "${mediaStorage}:/media";
+          };
+
+          port = 6246;
+          traefik.name = maintainerrName;
+          stack = stackName;
+          homepage = {
+            inherit category;
+            name = maintainerrDisplayName;
+            settings = {
+              description = maintainerrDescription;
+              icon = "maintainerr";
+            };
+          };
+          glance = {
+            inherit category;
+            description = maintainerrDescription;
+            name = maintainerrDisplayName;
+            id = maintainerrName;
+            icon = "di:maintainerr";
           };
         };
 

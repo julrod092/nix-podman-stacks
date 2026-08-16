@@ -30,6 +30,9 @@ Full streaming and automation stack containing:
 - Profilarr: Configuration Management Platform for Radarr/Sonarr
   - [Github](https://github.com/Dictionarry-Hub/profilarr)
   - [Website](https://dictionarry.dev/)
+- Maintainerr: Library maintenance tool for Plex, Jellyfin and Emby
+  - [Github](https://github.com/maintainerr/maintainerr)
+  - [Website](https://maintainerr.info)
 
 By default, the following services are enabled:
 
@@ -46,6 +49,7 @@ Additionally, the following services can be enabled (disabled by default):
 - qui
 - Profilarr
 - SABnzbd
+- Maintainerr
 
 ## Examples
 
@@ -105,6 +109,7 @@ Additionally, the following services can be enabled (disabled by default):
 
     profilarr.enable = true;
     seerr.enable = true;
+    maintainerr.enable = true;
   };
 }
 ```

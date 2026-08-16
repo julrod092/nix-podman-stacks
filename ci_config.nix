@@ -821,6 +821,7 @@ in {
           seerr.enable = true;
           profilarr.enable = true;
           sabnzbd.enable = true;
+          maintainerr.enable = true;
         }
         // lib.genAttrs ["sonarr" "radarr" "bazarr" "prowlarr"] (name: {
           extraEnv."${lib.toUpper name}__AUTH__APIKEY".fromFile = dummySecretFile;
