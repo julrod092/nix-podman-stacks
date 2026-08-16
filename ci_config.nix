@@ -222,13 +222,6 @@ in {
         };
       };
 
-      filebrowser = {
-        enable = true;
-        mounts = {
-          "/home/foo/bar" = "/bar";
-        };
-      };
-
       filebrowser-quantum = {
         enable = true;
         mounts = {

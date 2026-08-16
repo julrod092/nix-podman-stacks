@@ -22,7 +22,6 @@ let
     donetick = ./donetick;
     dozzle = ./dozzle;
     docker-socket-proxy = ./docker-socket-proxy;
-    filebrowser = ./filebrowser;
     filebrowser-quantum = ./filebrowser-quantum;
     flaresolverr = ./flaresolverr;
     forgejo = ./forgejo;
