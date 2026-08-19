@@ -51,6 +51,34 @@
         ./ci_config.nix
       ];
     };
+    homeConfigurations.monitoring-minimal = home-manager.lib.homeManagerConfiguration {
+      pkgs = nixpkgs.legacyPackages."x86_64-linux";
+      modules = [
+        self.homeModules.nps
+        {
+          home = {
+            stateVersion = "26.05";
+            username = "ci";
+            homeDirectory = "/home/ci";
+          };
+          nps = {
+            hostIP4Address = "192.0.2.1";
+            hostUid = 1000;
+            storageBaseDir = "/home/ci/stacks";
+            externalStorageBaseDir = "/mnt/storage";
+            stacks.monitoring = {
+              enable = true;
+              loki.enable = false;
+              alloy.enable = false;
+              podmanExporter.enable = false;
+              alertmanager.enable = false;
+            };
+          };
+        }
+      ];
+    };
+
+    checks.x86_64-linux.monitoring-minimal = self.homeConfigurations.monitoring-minimal.activationPackage;
 
     packages = forAllSystems (
       system: let
