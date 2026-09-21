@@ -181,6 +181,7 @@ There is also an [Option Search](https://tarow.github.io/nix-podman-stacks/searc
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/wireguard.svg" style="width:1em;height:1em;" /> [wg-easy](https://tarow.github.io/nix-podman-stacks/docs/stacks/wg-easy.html)
 - <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/wireguard.svg" style="width:1em;height:1em;" /> [wg-portal](https://tarow.github.io/nix-podman-stacks/docs/stacks/wg-portal.html)
 - <img src="https://repository-images.githubusercontent.com/16027367/5e148d00-d9f9-11e9-8fa7-04b02283d9af" style="width:1em;height:1em;" /> [Yopass](https://tarow.github.io/nix-podman-stacks/docs/stacks/yopass.html)
+- <img src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/job-ops.svg" style="width:1em;height:1em;" /> [JobOps](https://tarow.github.io/nix-podman-stacks/docs/stacks/job-ops.html)
 
 ## 💡 Missing a Stack / Option / Integration ?
 
