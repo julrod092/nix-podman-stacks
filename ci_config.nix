@@ -416,6 +416,17 @@ in {
         };
       };
 
+      homarr = {
+        enable = true;
+        secretEncryptionKeyFile = dummySecretFile;
+        authSecretFile = dummySecretFile;
+        oidc = {
+          enable = true;
+          clientSecretFile = dummySecretFile;
+          clientSecretHash = dummyHash;
+        };
+      };
+
       homepage = {
         enable = true;
         widgets = [

@@ -36,6 +36,7 @@ let
     homeassistant = ./homeassistant;
     homebox = ./homebox;
     homelable = ./homelable;
+    homarr = ./homarr;
     homepage = ./homepage;
     hortusfox = ./hortusfox;
     immich = ./immich;
