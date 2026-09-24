@@ -420,6 +420,7 @@ in {
         enable = true;
         secretEncryptionKeyFile = dummySecretFile;
         authSecretFile = dummySecretFile;
+        validationRoute.subDomain = "homarr-preview";
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;

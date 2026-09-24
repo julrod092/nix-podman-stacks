@@ -57,8 +57,11 @@ in {
 
                 For details see <https://sablierapp.dev/concepts/groups/>
               '';
-              default = config.stack;
-              defaultText = lib.literalExpression ''containerCfg.stack'';
+              default =
+                if config.stack == null
+                then name
+                else config.stack;
+              defaultText = lib.literalExpression ''containerCfg.stack or containerName'';
             };
           };
         };

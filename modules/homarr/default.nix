@@ -23,6 +23,14 @@ in {
       type = lib.types.path;
       description = "File containing the Auth.js secret used to sign Homarr sessions.";
     };
+    validationRoute.subDomain = lib.mkOption {
+      type = lib.types.str;
+      default = name;
+      description = ''
+        Subdomain used for the Homarr validation route. Set this to a unique value,
+        such as `homarr-preview`, to run Homarr alongside Homepage before cutover.
+      '';
+    };
     oidc = {
       enable = lib.mkOption {
         type = lib.types.bool;
@@ -105,7 +113,10 @@ in {
         };
       wantsContainer = lib.optional cfg.oidc.enable "authelia";
       port = 7575;
-      traefik.name = name;
+      traefik = {
+        inherit name;
+        subDomain = cfg.validationRoute.subDomain;
+      };
       homepage = {
         inherit category;
         name = displayName;
