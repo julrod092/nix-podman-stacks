@@ -39,10 +39,12 @@ let
     homeassistant = ./homeassistant;
     homebox = ./homebox;
     homelable = ./homelable;
+    homarr = ./homarr;
     homepage = ./homepage;
     hortusfox = ./hortusfox;
     immich = ./immich;
     it-tools = ./it-tools;
+    job-ops = ./job-ops;
     jotty = ./jotty;
     kaneo = ./kaneo;
     karakeep = ./karakeep;

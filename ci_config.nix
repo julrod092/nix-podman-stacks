@@ -476,6 +476,18 @@ in {
         };
       };
 
+      homarr = {
+        enable = true;
+        secretEncryptionKeyFile = dummySecretFile;
+        authSecretFile = dummySecretFile;
+        validationRoute.subDomain = "homarr-preview";
+        oidc = {
+          enable = true;
+          clientSecretFile = dummySecretFile;
+          clientSecretHash = dummyHash;
+        };
+      };
+
       homepage = {
         enable = true;
         widgets = [
