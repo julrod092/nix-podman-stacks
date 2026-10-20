@@ -42,10 +42,20 @@ nix build .#integrationTests.x86_64-linux.<stack>-integration --no-link --option
 ```
 
 The central test scaffolding lives in `tests/` (`base-config.nix`, `base-home.nix`,
-`vm.nix`, `check.sh`, `driver.py`) and is merged with the per-stack
-`vm-test.nix` home-manager fragment. Skip stacks that cannot run in a plain VM
-(devices, privileged ports, cross-stack coupling) by simply not adding a
-`vm-test.nix`.
+`mk-integration-test.nix`, `check.sh`, `driver.py`, `dummy-values.nix`) and is merged
+with the per-stack `vm-test.nix` home-manager fragment.
+
+The scaffolding is also exported as the `lib` flake output (`lib.mkIntegrationTest`,
+`lib.stackTestModules`) so consumers can test their own configuration. The
+`integrationTests` output is generated with
+`self.lib.mkIntegrationTest`, so repo and consumer tests share one code path. When
+changing anything under `tests/` or `lib/`, update the `integrationTests` call site in
+`flake.nix` and the options table in `docs/book/testing.md` with it. CI builds the stacks
+matching changed files and falls back to `it-tools` when the shared scaffolding changed,
+but it only covers `x86_64-linux`/KVM, so verify locally with:
+`nix build .#integrationTests.x86_64-linux.it-tools-integration --option sandbox false`.
+
+`npsTest.*` options are declared by `tests/base-config.nix`.
 
 ## Module Structure
 
@@ -81,8 +91,12 @@ in {
 When adding a new module, also add a `modules/<name>/vm-test.nix` (a home-manager
 fragment enabling the stack with dummy secrets) so the stack gets a NixOS VM
 integration test. Available dummy secrets are exposed via `_module.args`
-(`dummySecretFile`, `dummyHash`) from `tests/base-home.nix`. See
-`modules/it-tools/vm-test.nix` for a minimal example.
+(`dummySecretFile`, `dummyClientSecretHash`) from `tests/base-home.nix`, which sources them from
+`tests/dummy-values.nix`. See `modules/it-tools/vm-test.nix` for a minimal example.
+
+A memory hungry stack raises `npsTests.memorySize` in its own `vm-test.nix` (e.g. `immich`).
+That option is declared by `tests/base-home.nix` and used by `tests/base-config.nix`, so
+exported stack test modules work standalone.
 
 ## Container Configuration Patterns
 
@@ -94,9 +108,23 @@ integration test. Available dummy secrets are exposed via `_module.args`
 
 ### Dashboard Configs
 
-- `homepage` - **only on main container** (the one with `traefik.name`)
-- `glance` - **all containers**; use `parent = name` for child containers (DB, Redis, etc.)
-- Define let variables (name, category, displayName, description) and apply to Homepage and Glance configs
+Use the `dashboard` option, it configures Homepage and Glance from a single value:
+
+```nix
+dashboard = {
+  inherit category description;    # let variables, applied to both dashboards
+  name = displayName;
+  icon = "di:jellyfin";            # Glance syntax, translated for Homepage
+  parent = name;                   # optional, child service, Glance only
+};
+
+homepage.settings.widget.type = "jellyfin"; # Homepage only
+glance.icon = "si:jellyfin";       # Glance only
+```
+
+- `dashboard` - **all containers**
+- `homepage` / `glance` - only for what is specific to one dashboard
+- containers with a `parent` are child services, they are not shown on Homepage
 
 ### Volume Abstraction
 
@@ -223,7 +251,7 @@ settings = lib.mkOption {
 ```nix
 (import ../types.nix lib).extraEnv
 (import ../authelia/options.nix lib).clientSecretFile
-(import ../docker-socket-proxy/mkSocketProxyOptionModule.nix {stack = name;})
+(import ../socket-proxy/mkSocketProxyOptionModule.nix {stack = name;})
 ```
 
 ### Option Exposure Guidelines

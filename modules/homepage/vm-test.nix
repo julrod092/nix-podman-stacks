@@ -1,11 +1,11 @@
 {
-  dummyHash,
+  dummyClientSecretHash,
   dummySecretFile,
   ...
 }: {
   imports = [
     ../authelia/vm-test.nix
-    ../docker-socket-proxy/vm-test.nix
+    ../socket-proxy/vm-test.nix
   ];
   nps.stacks.homepage = {
     enable = true;
@@ -14,7 +14,7 @@
     oidc = {
       enable = true;
       clientSecretFile = dummySecretFile;
-      clientSecretHash = dummyHash;
+      clientSecretHash = dummyClientSecretHash;
     };
   };
 }

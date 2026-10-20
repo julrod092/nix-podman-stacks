@@ -40,7 +40,9 @@
         "/homelable/",
         "/scanopy/",
         "/super-productivity/",
-        "/super-sync-server/"
+        "/super-sync-server/",
+        "/excalidash/",
+        "/netbirdio/"
       ],
       "groupName": "{{parentDir}}"
     },
@@ -55,6 +57,7 @@
       "matchDatasources": ["docker"],
       "matchPackageNames": [
         "/postgres/",
+        "/pgvector/",
         "/mysql/",
         "/mariadb/",
         "/pgvecto-rs/",

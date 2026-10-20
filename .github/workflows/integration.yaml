@@ -11,10 +11,6 @@ on:
       - main
   pull_request:
 
-concurrency:
-  group: integration-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   detect:
     runs-on: ubuntu-26.04
@@ -33,28 +29,44 @@ jobs:
           filters: |
             stacks:
               - 'modules/**'
+            template:
+              - 'template/**'
+            scaffolding:
+              - 'tests/**'
+              - 'lib/**'
+              - 'flake.nix'
       - name: Determine affected stacks
         id: affected
         env:
           STACK_FILES: ${{ steps.filter.outputs.stacks_files }}
+          TEMPLATE_CHANGED: ${{ steps.filter.outputs.template }}
+          SCAFFOLDING_CHANGED: ${{ steps.filter.outputs.scaffolding }}
           MANUAL_STACKS: ${{ inputs.stacks }}
         run: |
           set -euo pipefail
 
           if [[ -n "$MANUAL_STACKS" ]]; then
             if [[ "$MANUAL_STACKS" == "all" ]]; then
-              STACKS=$(ls -d modules/*/vm-test.nix | cut -d/ -f2)
+              STACKS=$( { ls -d modules/*/vm-test.nix | cut -d/ -f2; echo template; } )
             else
               STACKS=$(echo "$MANUAL_STACKS" | tr ',' '\n')
             fi
           else
             STACKS=$(echo "$STACK_FILES" | jq -r '.[]' | grep '^modules/' | cut -d/ -f2 | sort -u || true)
+            # Shared test scaffolding affects every stack, smoke-test the cheapest one.
+            if [[ "$SCAFFOLDING_CHANGED" == "true" && -z "$STACKS" ]]; then
+              STACKS="it-tools"
+            fi
+            # The template config exercises the whole stack cross-wiring.
+            if [[ "$TEMPLATE_CHANGED" == "true" && -z "$STACKS" ]]; then
+              STACKS="template"
+            fi
           fi
 
-          # Keep only stacks that actually ship a vm-test.nix
+          # Keep only tests that exist
           FILTERED=""
           for s in $STACKS; do
-            if [[ -f "modules/$s/vm-test.nix" ]]; then
+            if [[ "$s" == "template" ]] || [[ -f "modules/$s/vm-test.nix" ]]; then
               FILTERED="$FILTERED$s\n"
             fi
           done
@@ -67,6 +79,9 @@ jobs:
     if: needs.detect.outputs.stacks != '[]'
     runs-on: ubuntu-26.04
     name: Integration (${{ matrix.stacks }})
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.stacks }}
+      cancel-in-progress: true
     strategy:
       fail-fast: false
       matrix:

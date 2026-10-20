@@ -6,6 +6,7 @@
 }: let
   name = "glance";
   cfg = config.nps.stacks.${name};
+  sections = config.nps.stacks.socket-proxy.sections;
 
   yaml = pkgs.formats.yaml {};
 
@@ -16,7 +17,12 @@ in {
   imports =
     [
       ./extension.nix
-      (import ../docker-socket-proxy/mkSocketProxyOptionModule.nix {stack = name;})
+      (import ../socket-proxy/mkSocketProxyOptionModule.nix {
+        stack = name;
+        permissions = {
+          GET = [sections.containers];
+        };
+      })
     ]
     ++ (import ../mkAliases.nix config lib name [name]);
 
@@ -87,7 +93,7 @@ in {
     };
 
     services.podman.containers.${name} = {
-      image = "docker.io/glanceapp/glance:v0.8.6";
+      image = "docker.io/glanceapp/glance:v0.8.7";
 
       volumeMap = {
         settings = "${cfg.settings}:/app/config/glance.yml";
@@ -97,17 +103,14 @@ in {
       port = 8080;
       traefik = {
         name = name;
-        subDomain = lib.mkDefault "";
       };
 
-      homepage = {
-        inherit category;
+      dashboard = {
+        inherit category description;
         name = displayName;
-        settings = {
-          inherit description;
-          icon = "glance";
-        };
+        icon = "di:glance";
       };
+      glance.category = null;
     };
   };
 }

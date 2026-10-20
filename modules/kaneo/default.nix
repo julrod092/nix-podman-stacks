@@ -101,7 +101,8 @@ in {
 
     services.podman.containers = {
       ${webName} = {
-        image = "ghcr.io/usekaneo/web:2.25.0";
+        image = "ghcr.io/usekaneo/web:2.46.2";
+        user = "${toString config.nps.defaultUid}:${toString config.nps.defaultGid}";
 
         environment = {
           KANEO_CLIENT_URL = cfg.containers.${webName}.traefik.serviceUrl;
@@ -114,24 +115,15 @@ in {
         port = 5173;
         traefik.name = name;
 
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "sh-kaneo";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = webName;
           icon = "sh:kaneo";
         };
       };
 
       ${apiName} = {
-        image = "ghcr.io/usekaneo/api:2.25.0";
+        image = "ghcr.io/usekaneo/api:2.46.2";
 
         extraEnv =
           {
@@ -154,11 +146,11 @@ in {
 
         traefik.name = apiName;
 
-        glance = {
+        dashboard = {
           inherit category;
           name = "Backend";
-          parent = name;
           icon = "sh:kaneo";
+          parent = webName;
         };
       };
 
@@ -183,11 +175,11 @@ in {
         };
 
         stack = name;
-        glance = {
+        dashboard = {
           inherit category;
           name = "Postgres";
-          parent = name;
           icon = "di:postgres";
+          parent = webName;
         };
       };
     };

@@ -78,7 +78,7 @@ in {
     };
 
     services.podman.containers.${name} = {
-      image = "docker.io/mauriceboe/trek:4.3.0";
+      image = "docker.io/mauriceboe/trek:4.3.3";
       volumeMap = {
         data = "${storage}/data:/app/data";
         uploads = "${storage}/uploads:/app/uploads";
@@ -103,18 +103,9 @@ in {
       wantsContainer = lib.optional cfg.oidc.enable "authelia";
       port = 3000;
       traefik.name = name;
-      homepage = {
-        inherit category;
-        name = displayName;
-        settings = {
-          inherit description;
-          icon = "sh-trek";
-        };
-      };
-      glance = {
+      dashboard = {
         inherit category description;
         name = displayName;
-        id = name;
         icon = "sh:trek";
       };
     };

@@ -95,7 +95,7 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "ghcr.io/fccview/jotty:1.27.0";
+        image = "ghcr.io/fccview/jotty:1.28.0";
 
         volumeMap = {
           data = "${storage}/data:/app/data";
@@ -122,18 +122,9 @@ in {
         stack = name;
         port = 3000;
         traefik.name = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "jotty";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "di:jotty";
         };
       };

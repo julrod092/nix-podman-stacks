@@ -68,30 +68,21 @@ in {
   config = lib.mkIf cfg.enable {
     services.podman.containers = {
       ${name} = {
-        image = "docker.io/johannesjo/super-productivity:v19.1.0";
+        image = "docker.io/johannesjo/super-productivity:v19.2.0";
 
         stack = name;
         port = 80;
         traefik.name = name;
 
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "super-productivity";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "di:super-productivity.png";
         };
       };
 
       ${syncName} = lib.mkIf cfg.enableSync {
-        image = "ghcr.io/warreth/super-sync-server:v19.1.0";
+        image = "ghcr.io/warreth/super-sync-server:v19.2.0";
         stack = name;
 
         volumeMap.data = "${storage}/supersync:/data";
@@ -131,11 +122,11 @@ in {
           HealthStartPeriod = "20s";
         };
 
-        glance = {
+        dashboard = {
           inherit category description;
-          parent = name;
           name = "SuperSync";
           icon = "di:super-productivity.png";
+          parent = name;
         };
       };
 
@@ -149,11 +140,11 @@ in {
           POSTGRES_PASSWORD.fromFile = cfg.db.passwordFile;
         };
 
-        glance = {
+        dashboard = {
           inherit category;
-          parent = name;
           name = "Postgres";
           icon = "di:postgres";
+          parent = name;
         };
       };
     };

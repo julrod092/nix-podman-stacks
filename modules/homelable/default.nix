@@ -152,31 +152,22 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "ghcr.io/pouzor/homelable-frontend:3.4.2";
+        image = "ghcr.io/pouzor/homelable-frontend:3.6.0";
 
         wantsContainer = [backendName];
 
         stack = name;
         port = 80;
         traefik.name = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "homelable";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "di:homelable";
         };
       };
 
       ${backendName} = {
-        image = "ghcr.io/pouzor/homelable-backend:3.4.2";
+        image = "ghcr.io/pouzor/homelable-backend:3.6.0";
         volumeMap.data = "${storage}/data:/app/data";
 
         extraEnv =
@@ -234,16 +225,16 @@ in {
 
         wantsContainer = lib.optional cfg.oidc.enable "authelia";
         stack = name;
-        glance = {
+        dashboard = {
           inherit category;
-          parent = name;
           name = "Backend";
           icon = "di:homelable";
+          parent = name;
         };
       };
 
       ${mcpName} = lib.mkIf cfg.mcp.enable {
-        image = "ghcr.io/pouzor/homelable-mcp:3.4.2";
+        image = "ghcr.io/pouzor/homelable-mcp:3.6.0";
 
         extraEnv = {
           BACKEND_URL = "http://${backendName}:8000";
@@ -253,11 +244,11 @@ in {
 
         wantsContainer = [backendName];
         stack = name;
-        glance = {
+        dashboard = {
           inherit category;
-          parent = name;
           name = "MCP Server";
           icon = "di:homelable";
+          parent = name;
         };
       };
     };

@@ -103,7 +103,7 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "docker.io/norishapp/norish:v0.23.1-beta";
+        image = "docker.io/norishapp/norish:v0.25.1-beta";
         user = "${toString config.nps.defaultUid}:${toString config.nps.defaultGid}";
         volumeMap.data = "${storage}/data:/app/uploads";
 
@@ -133,18 +133,9 @@ in {
         stack = name;
         port = 3000;
         traefik.name = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "sh-norish";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "sh:norish";
         };
       };
@@ -170,23 +161,23 @@ in {
         };
 
         stack = name;
-        glance = {
+        dashboard = {
           inherit category;
           name = "Postgres";
-          parent = name;
           icon = "di:postgres";
+          parent = name;
         };
       };
 
       ${browserName} = {
-        image = "docker.io/norishapp/obscura:0.2.0-norish.1";
+        image = "docker.io/norishapp/obscura:0.2.2-norish.1";
 
         stack = name;
-        glance = {
+        dashboard = {
           inherit category;
-          parent = name;
           name = "Chrome";
           icon = "di:chrome";
+          parent = name;
         };
       };
 
@@ -204,11 +195,11 @@ in {
           HealthOnFailure = "kill";
         };
 
-        glance = {
-          parent = name;
+        dashboard = {
+          inherit category;
           name = "Redis";
           icon = "di:redis";
-          inherit category;
+          parent = name;
         };
       };
     };

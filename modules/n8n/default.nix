@@ -17,7 +17,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     services.podman.containers.${name} = {
-      image = "docker.n8n.io/n8nio/n8n:2.40.3";
+      image = "ghcr.io/n8n-io/n8n:2.44.4";
       # Chown host volume automatically (:U), since n8n will always run as UID/GID 1000
       volumeMap.data = "${storage}/data:/home/node/.n8n:U";
       environment = {
@@ -29,18 +29,9 @@ in {
 
       port = 5678;
       traefik.name = name;
-      homepage = {
-        inherit category;
-        name = displayName;
-        settings = {
-          inherit description;
-          icon = "n8n";
-        };
-      };
-      glance = {
+      dashboard = {
         inherit category description;
         name = displayName;
-        id = name;
         icon = "di:n8n";
       };
     };

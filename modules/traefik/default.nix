@@ -6,6 +6,7 @@
 }: let
   name = "traefik";
   cfg = config.nps.stacks.${name};
+  sections = config.nps.stacks.socket-proxy.sections;
 
   yaml = pkgs.formats.yaml {};
 
@@ -18,9 +19,18 @@ in {
   imports =
     [
       ./extension.nix
-      (import ../docker-socket-proxy/mkSocketProxyOptionModule.nix {stack = name;})
+      (import ../socket-proxy/mkSocketProxyOptionModule.nix {
+        stack = name;
+        permissions = {
+          GET = [
+            sections.containers
+            sections.info
+            sections.events
+          ];
+        };
+      })
     ]
-    ++ import ../mkAliases.nix config lib name name;
+    ++ import ../mkAliases.nix config lib name [name];
 
   options.nps.stacks.${name} = {
     enable =
@@ -211,7 +221,7 @@ in {
         (import ./config/traefik.nix lib cfg.domain cfg.network.name)
 
         (lib.mkIf cfg.useSocketProxy {
-          providers.docker.endpoint = config.nps.stacks.docker-socket-proxy.address;
+          providers.docker.endpoint = config.nps.stacks.socket-proxy.address;
         })
 
         (lib.mkIf cfg.enablePrometheusExport {
@@ -221,7 +231,7 @@ in {
         (lib.mkIf cfg.crowdsec.middleware.enable {
           experimental.plugins.bouncer = {
             moduleName = "github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin";
-            version = "v1.7.1";
+            version = "v1.8.1";
           };
         })
       ];
@@ -297,7 +307,7 @@ in {
     };
 
     services.podman.containers.${name} = rec {
-      image = "docker.io/traefik:v3.7.13";
+      image = "docker.io/traefik:v3.7.15";
 
       socketActivation = [
         {
@@ -353,21 +363,14 @@ in {
       alloy = lib.mkIf cfg.enableGrafanaAccessLogDashboard {
         enable = true;
       };
-      homepage = {
-        inherit category;
-        name = displayName;
-        settings = {
-          inherit description;
-          href = "https://${name}.${cfg.domain}";
-          icon = "traefik";
-          widget.type = "traefik";
-        };
-      };
-      glance = {
+      dashboard = {
         inherit category description;
         name = displayName;
-        id = name;
         icon = "di:traefik";
+      };
+      homepage.settings = {
+        href = "https://${name}.${cfg.domain}";
+        widget.type = "traefik";
       };
     };
   };

@@ -120,7 +120,7 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "docker.io/leantime/leantime:3.9.8";
+        image = "docker.io/leantime/leantime:3.12.0";
 
         volumeMap = {
           publicUserfile = "${storage}/userfiles:/var/www/html/public/userfiles";
@@ -166,18 +166,9 @@ in {
         stack = name;
         port = 8080;
         traefik.name = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "leantime";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "di:leantime";
         };
       };
@@ -204,11 +195,11 @@ in {
 
         stack = name;
 
-        glance = {
+        dashboard = {
           inherit category;
-          parent = name;
           name = "MariaDB";
           icon = "di:mariadb";
+          parent = name;
         };
       };
     };

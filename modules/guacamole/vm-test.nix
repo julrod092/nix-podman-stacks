@@ -1,5 +1,5 @@
 {
-  dummyHash,
+  dummyClientSecretHash,
   dummySecretFile,
   dummyUser,
   ...

@@ -1,5 +1,5 @@
 {
-  dummyHash,
+  dummyClientSecretHash,
   dummySecretFile,
   ...
 }: {
@@ -10,7 +10,7 @@
     oidc = {
       enable = true;
       clientSecretFile = dummySecretFile;
-      clientSecretHash = dummyHash;
+      clientSecretHash = dummyClientSecretHash;
     };
     settings.is_user_creation_disabled = true;
   };

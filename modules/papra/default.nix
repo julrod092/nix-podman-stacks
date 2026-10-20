@@ -100,7 +100,7 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "ghcr.io/papra-hq/papra:26.6.2-rootless";
+        image = "ghcr.io/papra-hq/papra:26.7.0-rootless";
         user = "${toString config.nps.defaultUid}:${toString config.nps.defaultGid}";
         volumeMap = {
           data = "${storage}/data:/app/app-data";
@@ -140,18 +140,9 @@ in {
         stack = name;
         port = 1221;
         traefik.name = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "papra";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "di:papra";
         };
       };

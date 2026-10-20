@@ -14,7 +14,7 @@
 
   storage = "${config.nps.storageBaseDir}/${name}";
 in {
-  imports = import ../mkAliases.nix config lib name [name dbName];
+  imports = import ../mkAliases.nix config lib name [name dbName redisName];
 
   options.nps.stacks.${name} = {
     enable = lib.mkEnableOption name;
@@ -123,7 +123,7 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "docker.io/outlinewiki/outline:1.10.1";
+        image = "docker.io/outlinewiki/outline:1.11.0";
         user = "${toString config.nps.defaultUid}:${toString config.nps.defaultGid}";
         volumeMap.data = "${storage}/data:/var/lib/outline/data";
         extraEnv =
@@ -152,18 +152,9 @@ in {
         stack = name;
         port = 3000;
         traefik.name = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "outline";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "di:outline";
         };
       };
@@ -182,11 +173,11 @@ in {
           HealthOnFailure = "kill";
         };
 
-        glance = {
-          parent = name;
+        dashboard = {
+          inherit category;
           name = "Redis";
           icon = "di:redis";
-          inherit category;
+          parent = name;
         };
       };
 
@@ -210,11 +201,11 @@ in {
         };
 
         stack = name;
-        glance = {
-          parent = name;
+        dashboard = {
+          inherit category;
           name = "Postgres";
           icon = "di:postgres";
-          inherit category;
+          parent = name;
         };
       };
     };

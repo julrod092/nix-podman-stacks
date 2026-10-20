@@ -23,7 +23,8 @@
         -addext "basicConstraints=critical,CA:TRUE"
     '';
 in {
-  # Expose the certificate directory so other test modules can mount/trust it.
+  # Stack test modules communicate over `_module.args`; `extraSpecialArgs` is set from
+  # the NixOS side and is a no-op here. Seven other vm-test.nix files read this.
   _module.args.selfSignedCertDir = certDir;
 
   nps.stacks.traefik = {

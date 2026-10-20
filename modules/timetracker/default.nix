@@ -13,7 +13,7 @@
   description = "Time Tracking Application";
   displayName = "TimeTracker";
 in {
-  imports = import ../mkAliases.nix config lib name [name];
+  imports = import ../mkAliases.nix config lib name [name dbName];
 
   options.nps.stacks.${name} = {
     enable = lib.mkEnableOption name;
@@ -116,7 +116,7 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "ghcr.io/drytrix/timetracker:5.16.0";
+        image = "ghcr.io/drytrix/timetracker:5.18.2";
         volumeMap.data = "${storage}:/data/";
         user = config.nps.defaultUid;
         extraEnv =
@@ -159,18 +159,9 @@ in {
         port = 8080;
         stack = name;
         traefik.name = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "mdi-book-clock-outline";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "mdi:book-clock-outline";
         };
       };
@@ -195,11 +186,11 @@ in {
         };
 
         stack = name;
-        glance = {
-          parent = name;
+        dashboard = {
+          inherit category;
           name = "Postgres";
           icon = "di:postgres";
-          inherit category;
+          parent = name;
         };
       };
     };

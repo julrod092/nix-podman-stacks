@@ -1,9 +1,24 @@
 {config, ...}: {
-  nps = {
-    hostIP4Address = "192.168.178.2";
+  imports = [
+    ({lib, ...}: {
+      options.services.podman.containers = lib.mkOption {
+        type = lib.types.attrsOf (
+          lib.types.submodule ({...}: {
+            extraConfig.Unit = {
+              Wants = ["sops-nix.service"];
+              After = ["sops-nix.service"];
+            };
+          })
+        );
+      };
+    })
+  ];
+
+  config.nps = {
+    hostIP4Address = "192.168.1.1";
     hostUid = 1000;
     storageBaseDir = "${config.home.homeDirectory}/stacks";
-    externalStorageBaseDir = "/mnt/hdd";
+    externalStorageBaseDir = "${config.home.homeDirectory}/external";
 
     stacks = {
       authelia = {
@@ -22,17 +37,13 @@
         enable = true;
         enableGrafanaDashboard = true;
         enablePrometheusExport = true;
-        containers.blocky = {
-          # When clicking the Blocky icon in the homepage, it will redirect to the Grafana dashboard.
-          homepage.settings.href = "${config.nps.containers.grafana.traefik.serviceUrl}/d/blocky";
-        };
       };
 
       crowdsec = {
         enable = true;
       };
 
-      docker-socket-proxy.enable = true;
+      socket-proxy.enable = true;
 
       homepage.enable = true;
 

@@ -44,7 +44,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     services.podman.containers.${name} = {
-      image = "ghcr.io/viren070/aiostreams:v2.34.1";
+      image = "ghcr.io/viren070/aiostreams:v2.36.0";
       extraConfig.Container = {
         HealthCmd = "wget -qO- http://localhost:3000/api/v1/status";
         HealthInterval = "1m";
@@ -69,18 +69,9 @@ in {
       port = 3000;
       traefik.name = name;
 
-      homepage = {
-        inherit category;
-        name = displayName;
-        settings = {
-          inherit description;
-          icon = "stremio";
-        };
-      };
-      glance = {
+      dashboard = {
         inherit category description;
         name = displayName;
-        id = name;
         icon = "di:stremio";
       };
     };

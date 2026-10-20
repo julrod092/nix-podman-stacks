@@ -6,6 +6,8 @@
 }: let
   yaml = pkgs.formats.yaml {};
 
+  dash = import ../dashboard.nix lib;
+
   homepageContainers = lib.filterAttrs (k: c: c.homepage.category != null) config.services.podman.containers;
 
   mergedServices =
@@ -37,42 +39,43 @@ in {
       options.homepage = with lib; {
         category = options.mkOption {
           type = types.nullOr types.str;
-          default = null;
+          default =
+            if (config.dashboard.parent != null)
+            then null
+            else config.dashboard.category;
+          defaultText = lib.literalExpression ''config.dashboard.category'';
           description = ''
-            The category under which the service will be listed on the Homepage dashboard.
+            Category of the service, `null` hides it on Homepage.
+            Containers with a `dashboard.parent` are hidden by default.
           '';
         };
         name = options.mkOption {
           type = types.str;
-          default = lib.toSentenceCase name;
-          defaultText = lib.literalExpression ''lib.toSentenceCase <containerName>'';
-          description = ''
-            The name of the service as it will appear on the Homepage dashboard.
-            Defaults to the container name.
-          '';
+          default = config.dashboard.name;
+          description = "The name of the service as it will appear on the Homepage dashboard.";
         };
         settings = options.mkOption {
           type = yaml.type;
           default = {};
           description = ''
             Settings for the Homepage service.
-            This can include icon, href, description, widget configuration, etc.
+            This can include widget configuration, rank and so on.
 
             See <https://gethomepage.dev/configs/services/#services/>
           '';
         };
       };
 
-      config = lib.mkIf (config.homepage.category != null) {
-        homepage.settings = {
-          id = name;
-          href = lib.mkIf (config.traefik.name != null) (lib.mkDefault config.traefik.serviceUrl);
-          server = lib.mkDefault "local";
-          container = lib.mkDefault name;
-          widget = {
-            enable = lib.mkDefault false;
-            url = lib.mkDefault "http://${config.traefik.serviceAddressInternal}";
-          };
+      config.homepage.settings = {
+        href = lib.mkIf (config.dashboard.url != null) (lib.mkDefault config.dashboard.url);
+        description = lib.mkDefault config.dashboard.description;
+        icon = lib.mkDefault (dash.toHomepage config.dashboard.icon);
+        id = lib.mkDefault name;
+        server = lib.mkDefault "local";
+        container = lib.mkDefault name;
+        widget = {
+          enable = lib.mkDefault false;
+          url = lib.mkDefault "http://${config.traefik.serviceAddressInternal}";
         };
       };
     }));

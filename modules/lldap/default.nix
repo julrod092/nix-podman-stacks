@@ -172,7 +172,7 @@ in {
         type = lib.types.attrsOf (
           lib.types.submodule (
             {name, ...}: {
-              freeformType = customAttrsType;
+              freeformType = lib.types.attrsOf customAttrsType;
               options = {
                 id = lib.mkOption {
                   type = lib.types.str;
@@ -235,7 +235,7 @@ in {
         type = lib.types.attrsOf (
           lib.types.submodule (
             {name, ...}: {
-              freeformType = customAttrsType;
+              freeformType = lib.types.attrsOf customAttrsType;
               options = {
                 name = lib.mkOption {
                   type = lib.types.str;
@@ -320,7 +320,7 @@ in {
       # Always use rootless images here with root-user, because otherwise chown on the read-only
       # lldap_config.toml will be attemped which fails
       # renovate: versioning=loose
-      image = "ghcr.io/lldap/lldap:2026-08-28-alpine-rootless";
+      image = "ghcr.io/lldap/lldap:2026-09-22-alpine-rootless";
       user = config.nps.defaultUid;
       volumeMap = {
         db = "${storage}/db:/db";
@@ -341,7 +341,7 @@ in {
 
       environment = {
         LLDAP_KEY_FILE = "";
-        FORCE_LDAP_USER_PASS_RESET = lib.mkDefault "always";
+        LLDAP_FORCE_LDAP_USER_PASS_RESET = lib.mkDefault "always";
       };
       fileEnvMount = {
         LLDAP_JWT_SECRET_FILE = cfg.jwtSecretFile;
@@ -351,20 +351,12 @@ in {
 
       port = 17170;
       traefik.name = name;
-      homepage = {
-        inherit category;
-        name = displayName;
-        settings = {
-          inherit description;
-          icon = "lldap-dark";
-        };
-      };
-      glance = {
+      dashboard = {
         inherit category description;
         name = displayName;
-        id = name;
-        icon = "auto-invert di:lldap";
+        icon = "di:lldap-dark";
       };
+      glance.icon = "auto-invert di:lldap";
     };
   };
 }

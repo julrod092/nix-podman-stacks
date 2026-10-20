@@ -64,7 +64,7 @@ in {
   config = lib.mkIf cfg.enable {
     services.podman.containers = {
       ${name} = {
-        image = "ghcr.io/danielbrendel/hortusfox-web:v6.1";
+        image = "ghcr.io/danielbrendel/hortusfox-web:v6.3";
         volumeMap = {
           img = "${storage}/img:/var/www/html/public/img";
           logs = "${storage}/logs:/var/www/html/app/logs";
@@ -93,20 +93,12 @@ in {
         stack = name;
         port = 80;
         traefik.name = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "hortusfox";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
-          icon = "sh:hortusfox";
+          icon = "di:hortusfox";
         };
+        glance.icon = "sh:hortusfox";
       };
 
       ${dbName} = {
@@ -130,10 +122,10 @@ in {
         };
 
         stack = name;
-        glance = {
-          parent = name;
-          icon = "si:mariadb";
+        dashboard = {
           inherit category;
+          icon = "si:mariadb";
+          parent = name;
         };
       };
     };

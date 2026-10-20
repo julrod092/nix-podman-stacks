@@ -13,7 +13,7 @@
   displayName = "Davis";
   description = "DAV Server";
 in {
-  imports = import ../mkAliases.nix config lib name [name];
+  imports = import ../mkAliases.nix config lib name [name dbName];
 
   options.nps.stacks.${name} = {
     enable = lib.mkEnableOption name;
@@ -87,7 +87,7 @@ in {
   config = lib.mkIf cfg.enable {
     services.podman.containers = {
       ${name} = {
-        image = "ghcr.io/tchapi/davis-standalone:5.4.4";
+        image = "ghcr.io/tchapi/davis-standalone:5.5.0";
         volumeMap.data = lib.mkIf (cfg.db.type == "sqlite") "${storage}/sqlite:/data";
 
         extraEnv =
@@ -132,20 +132,12 @@ in {
         stack = name;
         port = 9000;
         traefik.name = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "davis";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
-          icon = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/webp/davis.webp";
+          icon = "di:davis";
         };
+        glance.icon = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/webp/davis.webp";
       };
 
       ${dbName} = lib.mkIf (cfg.db.type == "mysql") {
@@ -170,11 +162,11 @@ in {
 
         stack = name;
 
-        glance = {
+        dashboard = {
           inherit category;
-          parent = name;
           name = "MariaDB";
           icon = "di:mariadb";
+          parent = name;
         };
       };
     };

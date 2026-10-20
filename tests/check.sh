@@ -9,10 +9,11 @@ export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/1000}"
 export PATH="${HOME}/.nix-profile/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/usr/bin:/bin:${PATH:-}"
 
 EXPECTED_UNITS_FILE="/etc/nps-test/expected-units"
-# Combined budget for ALL units to reach `active (running)`, shared across the
-# wait loop below (not a per-unit timeout).
-WAIT_TIMEOUT=600
-STABILITY_GRACE=60
+CHECK_CONF_FILE="${NPS_TEST_CHECK_CONF:-/etc/nps-test/check.conf}"
+# shellcheck source=/dev/null
+[ -f "$CHECK_CONF_FILE" ] && . "$CHECK_CONF_FILE"
+WAIT_TIMEOUT="${WAIT_TIMEOUT:-600}"
+STABILITY_GRACE="${STABILITY_GRACE:-60}"
 
 log() { printf '[%s] %s\n' "$(date '+%H:%M:%S')" "$*"; }
 fail() {
@@ -40,7 +41,10 @@ wait_for_unit() {
     while :; do
       state="$(systemctl --user show -p ActiveState --value "$1")"
       substate="$(systemctl --user show -p SubState --value "$1")"
+      # A non-existing unit stays "inactive" forever, so check LoadState too.
+      load="$(systemctl --user show -p LoadState --value "$1")"
       [ -n "$state" ] || { echo "unit $1 does not exist" >&2; exit 1; }
+      [ "$load" = "not-found" ] && { echo "unit $1 does not exist" >&2; exit 1; }
       [ "$state" = "active" ] && [ "$substate" = "$2" ] && exit 0
       [ "$state" = "failed" ] && { echo "unit $1 reached failed state" >&2; exit 1; }
       sleep 5
@@ -56,7 +60,12 @@ wait_for_unit() {
 [ -f "$EXPECTED_UNITS_FILE" ] || fail "expected units file ${EXPECTED_UNITS_FILE} does not exist"
 
 mapfile -t UNITS < "$EXPECTED_UNITS_FILE"
-[ "${#UNITS[@]}" -gt 0 ] || fail "no expected units in ${EXPECTED_UNITS_FILE}"
+
+# An empty list is a deliberate opt-out (`npsTest.expectedUnits = []`).
+if [ "${#UNITS[@]}" -eq 0 ]; then
+  log "no expected units in ${EXPECTED_UNITS_FILE}, skipping unit checks"
+  exit 0
+fi
 
 log "checking ${#UNITS[@]} unit(s): $(printf '%s ' "${UNITS[@]}")"
 
@@ -71,10 +80,6 @@ for unit in "${UNITS[@]}"; do
   fi
   wait_for_unit "$unit" running "$remaining"
 done
-
-# Log the active storage driver and network backend.
-log "podman storage driver: $(podman info --format '{{.Store.GraphDriverName}}')"
-log "podman network backend: $(podman info --format '{{.Host.NetworkBackend}}')"
 
 # Snapshot NRestarts baseline (a unit may restart once during startup).
 declare -A BASELINE_RESTARTS

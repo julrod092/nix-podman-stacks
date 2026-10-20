@@ -206,7 +206,7 @@ in {
           };
         configDir = "/app/config";
       in {
-        image = "ghcr.io/twin/gatus:v5.36.0";
+        image = "ghcr.io/twin/gatus:v5.37.0";
         volumeMap = {
           config = "${yaml.generate "config.yml" settings}:${configDir}/config.yml";
           data = lib.mkIf (cfg.db.type == "sqlite") "${storage}/sqlite:/data";
@@ -235,21 +235,12 @@ in {
         stack = name;
         port = 8080;
         traefik.name = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "gatus";
-            widget.type = "gatus";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "di:gatus";
         };
+        homepage.settings.widget.type = "gatus";
       };
 
       ${dbName} = lib.mkIf (cfg.db.type == "postgres") {
@@ -262,7 +253,7 @@ in {
         };
 
         stack = name;
-        glance = {
+        dashboard = {
           inherit category;
           parent = name;
           name = "Postgres";

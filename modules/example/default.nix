@@ -206,19 +206,9 @@ in {
         traefik.name = name;
 
         # Dashboard configurations
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "example-icon";
-          };
-        };
-
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "di:react";
         };
       };
@@ -234,11 +224,11 @@ in {
           POSTGRES_PASSWORD.fromFile = cfg.db.passwordFile;
         };
 
-        glance = {
-          parent = name;
+        dashboard = {
+          inherit category;
           name = "Postgres";
           icon = "di:postgres";
-          inherit category;
+          parent = name;
         };
       };
 
@@ -246,11 +236,11 @@ in {
       ${redisName} = {
         image = "docker.io/redis:8";
         stack = name;
-        glance = {
-          parent = name;
+        dashboard = {
+          inherit category;
           name = "Redis";
           icon = "di:redis";
-          inherit category;
+          parent = name;
         };
       };
     };

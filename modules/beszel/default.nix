@@ -6,6 +6,7 @@
 }: let
   name = "beszel";
   agentName = "${name}-agent";
+  sections = config.nps.stacks.socket-proxy.sections;
 
   storage = "${config.nps.storageBaseDir}/${name}";
   cfg = config.nps.stacks.${name};
@@ -20,10 +21,17 @@
 in {
   imports =
     [
-      (import ../docker-socket-proxy/mkSocketProxyOptionModule.nix {
+      (import ../socket-proxy/mkSocketProxyOptionModule.nix {
         stack = name;
         container = agentName;
         targetLocation = socketTargetLocation;
+        permissions = {
+          GET = [
+            sections.containers
+            sections.images
+            sections.info
+          ];
+        };
       })
     ]
     ++ import ../mkAliases.nix config lib name [
@@ -154,7 +162,7 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "ghcr.io/henrygd/beszel/beszel:0.20.0";
+        image = "ghcr.io/henrygd/beszel/beszel:0.21.0";
         volumeMap =
           {
             data = "${storage}/data:/beszel_data";
@@ -179,24 +187,15 @@ in {
         wantsContainer = lib.optional cfg.oidc.registerClient "authelia";
         port = 8090;
         traefik.name = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "beszel";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "di:beszel";
         };
       };
 
       ${agentName} = {
-        image = "ghcr.io/henrygd/beszel/beszel-agent:0.20.0";
+        image = "ghcr.io/henrygd/beszel/beszel-agent:0.21.0";
         volumeMap.socket = "${storage}/beszel_socket:/beszel_socket";
 
         # No way to connect to socket proxy through host network yet
@@ -214,13 +213,13 @@ in {
           DOCKER_HOST =
             if !cfg.useSocketProxy
             then "unix://${socketTargetLocation}"
-            else config.nps.stacks.docker-socket-proxy.address;
+            else config.nps.stacks.socket-proxy.address;
         };
-        glance = {
+        dashboard = {
           inherit category;
-          parent = name;
           name = "Beszel Agent";
           icon = "di:beszel";
+          parent = name;
         };
       };
     };

@@ -97,7 +97,7 @@ in {
       };
 
     services.podman.containers.${name} = {
-      image = "ghcr.io/advplyr/audiobookshelf:2.36.1";
+      image = "ghcr.io/advplyr/audiobookshelf:2.37.1";
       volumeMap = {
         audiobooks = "${mediaStorage}/audiobooks:/audiobooks";
         podcasts = "${storage}/podcasts:/podcasts";
@@ -108,21 +108,12 @@ in {
       port = 80;
       traefik.name = name;
 
-      homepage = {
-        inherit category;
-        name = displayName;
-        settings = {
-          inherit description;
-          icon = "audiobookshelf";
-          widget.type = "audiobookshelf";
-        };
-      };
-      glance = {
+      dashboard = {
         inherit category description;
         name = displayName;
-        id = name;
         icon = "di:audiobookshelf";
       };
+      homepage.settings.widget.type = "audiobookshelf";
     };
   };
 }

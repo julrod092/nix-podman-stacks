@@ -1,0 +1,60 @@
+---
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+change-template: "- $TITLE ($NUMBERS) $AUTHORS"
+change-title-escapes: '\<*_&'
+
+categories:
+  - title: "Features"
+    semver-increment: "minor"
+    when:
+      conventional:
+        type: "feat"
+  - title: "Bug Fixes"
+    when:
+      conventional:
+        type: "fix"
+  - title: "Refactoring"
+    when:
+      conventional:
+        types: ["refactor", "perf"]
+  - title: "Documentation"
+    when:
+      conventional:
+        type: "docs"
+  - title: "Dependency Updates"
+    when:
+      conventional:
+        type: "chore"
+        scope: "deps"
+  - type: "version-resolver"
+    semver-increment: "major"
+    when:
+      conventional:
+        breaking: true
+  - title: "Other Changes"
+
+group-changes:
+  - pattern: '/^chore\(deps\): update (?:action |dependency |module )?(?<group>.+?)(?: docker tag)? to (?<to>\S+)$/'
+    title-template: "Update $GROUP to $LAST_TO"
+
+replacers:
+  # Grouped entries come from `group-changes` rebuilding the title, which drops
+  # the " docker tag " marker. A registry path is all that is left to go on.
+  - search: '/- Update (?:[^\s/]+\/)+([^\s/]+) to /g'
+    replace: "- Update $1 to "
+  # Ungrouped docker bump: the marker is still there, so the name is a registry
+  # path. Has to run before the catch-all below, which would keep the path.
+  - search: '/- chore\(deps\): update (?:[^\s/]+\/)+([^\s/]+) docker tag to /g'
+    replace: "- Update $1 to "
+  # Everything else: normalise the prefix, keep the name exactly as written.
+  # Has to run last, or it would hand a path to the first replacer to strip.
+  - search: '/- chore\(deps\): update (?:action |dependency |module )?([^\s]+)(?: docker tag)? to /g'
+    replace: "- Update $1 to "
+
+template: |
+  ## What's Changed
+
+  $CHANGES
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION

@@ -34,7 +34,7 @@ in {
   options.nps.stacks.${name} = {
     enable = lib.mkEnableOption name;
 
-    gluetun = {
+    ${gluetunName} = {
       enable =
         lib.mkEnableOption "Gluetun"
         // {
@@ -100,7 +100,7 @@ in {
       };
     };
 
-    qui = {
+    ${quiName} = {
       enable = lib.mkEnableOption "qui";
       adminUsername = lib.mkOption {
         type = lib.types.str;
@@ -205,29 +205,20 @@ in {
 
         stack = name;
         port = 8888;
-        homepage = {
+        dashboard = {
           category = gluetunCategory;
           name = gluetunDisplayName;
-          settings = {
-            description = gluetunDescription;
-            icon = "gluetun";
-            widget = {
-              type = "gluetun";
-              url = "http://${gluetunName}:8000";
-            };
-          };
-        };
-        glance = {
-          category = gluetunCategory;
           description = gluetunDescription;
-          name = gluetunDisplayName;
-          id = gluetunName;
           icon = "di:gluetun";
+        };
+        homepage.settings.widget = {
+          type = "gluetun";
+          url = "http://${gluetunName}:8000";
         };
       };
 
       ${qbittorrentName} = {
-        image = "docker.io/linuxserver/qbittorrent:5.2.3";
+        image = "docker.io/linuxserver/qbittorrent:5.2.4";
 
         network = lib.mkIf cfg.gluetun.enable (lib.mkForce ["container:${gluetunName}"]);
         volumeMap = {
@@ -248,26 +239,17 @@ in {
         stack = name;
         port = 8080;
         traefik.name = qbittorrentName;
-        homepage = {
+        dashboard = {
           inherit category;
           name = qbittorrentDisplayName;
-          settings = {
-            description = qbittorrentDescription;
-            icon = "qbittorrent";
-            widget.type = "qbittorrent";
-          };
-        };
-        glance = {
-          inherit category;
           description = qbittorrentDescription;
-          name = qbittorrentDisplayName;
-          id = qbittorrentName;
           icon = "di:qbittorrent";
         };
+        homepage.settings.widget.type = "qbittorrent";
       };
 
       ${quiName} = lib.mkIf cfg.qui.enable {
-        image = "ghcr.io/autobrr/qui:v1.29.0";
+        image = "ghcr.io/autobrr/qui:v1.33.0";
         volumeMap = {
           config = "${storage}/${quiName}:/config";
           media = "${mediaStorage}:/media";
@@ -292,19 +274,10 @@ in {
         stack = name;
         port = 7476;
         traefik.name = quiName;
-        homepage = {
+        dashboard = {
           inherit category;
           name = quiDisplayName;
-          settings = {
-            description = quiDescription;
-            icon = "qui";
-          };
-        };
-        glance = {
-          inherit category;
           description = quiDescription;
-          name = quiDisplayName;
-          id = quiName;
           icon = "di:qui";
         };
       };

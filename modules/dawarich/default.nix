@@ -142,7 +142,7 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "docker.io/freikin/dawarich:1.14.5";
+        image = "docker.io/freikin/dawarich:1.16.0";
         volumeMap = {
           public = "${storage}/public:/var/app/public";
           watched = "${storage}/watched:/var/app/tmp/imports/watched";
@@ -162,24 +162,15 @@ in {
         stack = name;
         traefik.name = name;
 
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "dawarich";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "di:dawarich";
         };
       };
 
       ${sidekiqName} = {
-        image = "docker.io/freikin/dawarich:1.14.5";
+        image = "docker.io/freikin/dawarich:1.16.0";
         volumeMap = {
           public = "${storage}/public:/var/app/public";
           watched = "${storage}/watched:/var/app/tmp/imports/watched";
@@ -194,11 +185,11 @@ in {
         exec = "sidekiq";
 
         stack = name;
-        glance = {
+        dashboard = {
           inherit category;
           name = "Dawarich Sidekiq";
-          parent = name;
           icon = "di:immich";
+          parent = name;
         };
       };
 
@@ -215,11 +206,11 @@ in {
           HealthStartPeriod = "10s";
           HealthOnFailure = "kill";
         };
-        glance = {
+        dashboard = {
           inherit category;
-          parent = name;
           name = "Redis";
           icon = "di:redis";
+          parent = name;
         };
       };
 
@@ -247,11 +238,11 @@ in {
         };
 
         stack = name;
-        glance = {
+        dashboard = {
           inherit category;
           name = "Postgres";
-          parent = name;
           icon = "di:postgres";
+          parent = name;
         };
       };
     };

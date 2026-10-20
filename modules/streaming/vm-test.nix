@@ -1,6 +1,6 @@
 {
   lib,
-  dummyHash,
+  dummyClientSecretHash,
   dummySecretFile,
   ...
 }: {
@@ -16,7 +16,7 @@
     jellyfin.oidc = {
       enable = true;
       clientSecretFile = dummySecretFile;
-      clientSecretHash = dummyHash;
+      clientSecretHash = dummyClientSecretHash;
     };
   };
 

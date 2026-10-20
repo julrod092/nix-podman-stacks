@@ -1,5 +1,5 @@
 {
-  dummyHash,
+  dummyClientSecretHash,
   dummyEmail,
   dummySecretFile,
   dummyUser,
@@ -18,7 +18,7 @@
     oidc = {
       enable = true;
       clientSecretFile = dummySecretFile;
-      clientSecretHash = dummyHash;
+      clientSecretHash = dummyClientSecretHash;
       cryptoKeyFile = "insecure-test-crypto-key";
     };
   };

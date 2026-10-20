@@ -266,20 +266,18 @@ For example to set the `url` to a custom one and change the condition:
 }
 ```
 
-## Glance
+## Dashboards
 
-### Override Attributes
-
-Most containers come with preconfigured Glance coniguration.
-They will set `category`, `name`, `description`, `href`, ...
-You can override these values if desired.
+Most containers come with a preconfigured `dashboard` section.
+They will set `category`, `name`, `description`, `icon` and `url`, which are then used
+to configure both Homepage and Glance. You can override these values if desired.
 
 The options are not available on stack level, so we can refer to the container options
 
 ```nix
 {lib, ...}: {
   nps.stacks = {
-    adguard.containers.adguard.homepage = {
+    adguard.containers.adguard.dashboard = {
       name = lib.mkForce "New Name";
       category = lib.mkForce "New Category";
       description = lib.mkForce "New Description";
@@ -289,26 +287,21 @@ The options are not available on stack level, so we can refer to the container o
 }
 ```
 
-## Homepage
+### Single Dashboard
 
-### Override Attributes
+Everything is configured for both dashboards, to change something on a single dashboard only,
+use the `homepage` or `glance` container options.
 
-Most containers come with preconfigured homepage coniguration.
-They will set category, name and description.
-You can override these values if desired.
-
-The options are not available on stack level, so we can refer to the container options
+For example to link to a different URL on Homepage than on Glance:
 
 ```nix
-{lib, ...}: {
+{
   nps.stacks = {
-    adguard.containers.adguard.homepage = {
-      name = lib.mkForce "New Name";
-      category = lib.mkForce "New Category";
-      settings = {
-        description = lib.mkForce "New Description";
-        icon = lib.mkForce "si-adblock";
-      };
+    blocky.containers.blocky = {
+      # Used by Homepage and Glance
+      dashboard.url = "https://grafana.example.com/d/blocky";
+      # Used by Glance only
+      glance.url = "https://blocky.example.com";
     };
   };
 }
@@ -316,16 +309,24 @@ The options are not available on stack level, so we can refer to the container o
 
 ### Disable Service
 
-In order to avoid having a service show up in the homepage dashboard,
-set the `category` option to `null`.
+In order to avoid having a service show up on both dashboards,
+set the `dashboard.category` option to `null`.
+To hide it on a single dashboard only, set the `category` of that dashboard to `null`.
 
 ```nix
 {
   nps.stacks = {
+    # Hidden on Homepage and Glance
+    streaming.containers.sonarr.dashboard.category = null;
+    # Hidden on Homepage only
     streaming.containers.sonarr.homepage.category = null;
+    # Hidden on Glance only
+    streaming.containers.sonarr.glance.category = null;
   };
 }
 ```
+
+## Homepage
 
 ### Sort Services
 
@@ -497,6 +498,30 @@ Additional Sablier settings are forwarded as `X-Sablier` labels on the systemd u
   };
 }
 ```
+
+### Middleware Options
+
+Options for the Traefik plugin are set with the `middleware` option.
+All containers of a group share one middleware, so their settings are merged: nested blocks
+recursively, lists as a union, other values with the last one winning.
+
+```nix
+{
+  nps.stacks.homepage.containers.homepage.sablier = {
+    enable = true;
+    middleware = {
+      sessionDuration = "45m";
+      failOpen = true;
+      ignoreUserAgent = ["curl" "(?i)uptimerobot"];
+      # Shown on the waiting page while the container starts
+      dynamic.displayName = "Homepage";
+    };
+  };
+}
+```
+
+Use `nps.stacks.sablier.defaultStrategy` to select the default strategy.
+For all available options see <https://plugins.traefik.io/plugins/69104ac3b7d4dd76110a1a09/sablier>
 
 ## Traefik
 

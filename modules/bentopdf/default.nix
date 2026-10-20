@@ -16,22 +16,13 @@ in {
 
   config = lib.mkIf cfg.enable {
     services.podman.containers.${name} = {
-      image = "ghcr.io/alam00000/bentopdf-simple:2.8.8";
+      image = "ghcr.io/alam00000/bentopdf-simple:2.8.10";
 
       port = 8080;
       traefik.name = name;
-      homepage = {
-        inherit category;
-        name = displayName;
-        settings = {
-          inherit description;
-          icon = "bentopdf";
-        };
-      };
-      glance = {
+      dashboard = {
         inherit category description;
         name = displayName;
-        id = name;
         icon = "di:bentopdf";
       };
     };

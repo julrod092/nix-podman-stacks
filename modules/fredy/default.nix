@@ -18,7 +18,7 @@ in {
   config = lib.mkIf cfg.enable {
     services.podman.containers.${name} = {
       # renovate: datasource=docker depName=ghcr.io/orangecoding/fredy
-      image = "ghcr.io/orangecoding/fredy:28.4.0";
+      image = "ghcr.io/orangecoding/fredy:29.3.0";
 
       volumeMap = {
         conf = "${storage}/conf:/conf";
@@ -27,18 +27,9 @@ in {
 
       port = 9998;
       traefik.name = name;
-      homepage = {
-        inherit category;
-        name = displayName;
-        settings = {
-          inherit description;
-          icon = "https://raw.githubusercontent.com/orangecoding/fredy/refs/heads/master/doc/logo_white.png";
-        };
-      };
-      glance = {
+      dashboard = {
         inherit category description;
         name = displayName;
-        id = name;
         icon = "https://raw.githubusercontent.com/orangecoding/fredy/refs/heads/master/doc/logo_white.png";
       };
     };

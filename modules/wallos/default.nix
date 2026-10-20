@@ -75,7 +75,7 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "docker.io/bellamy/wallos:5.8.1";
+        image = "docker.io/bellamy/wallos:5.10.0";
 
         volumeMap = {
           db = "${storage}/db:/var/www/html/db";
@@ -100,18 +100,9 @@ in {
         stack = name;
         port = 80;
         traefik.name = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "wallos";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "di:wallos.webp";
         };
       };

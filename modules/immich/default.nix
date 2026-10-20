@@ -204,7 +204,7 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "ghcr.io/immich-app/immich-server:v3.2.2";
+        image = "ghcr.io/immich-app/immich-server:v3.3.3";
         volumeMap = {
           pictures = "${mediaStorage}/pictures/immich:${env.UPLOAD_LOCATION}";
           settings = lib.mkIf (cfg.settings != null && (!cfg.oidc.enable)) "${cfg.settings}:${env.IMMICH_CONFIG_FILE}";
@@ -229,31 +229,22 @@ in {
         stack = name;
         traefik.name = name;
 
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "immich";
-            widget.type = "immich";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "di:immich";
         };
+        homepage.settings.widget.type = "immich";
       };
 
       ${redisName} = {
         image = "docker.io/redis:8.0";
         stack = name;
-        glance = {
+        dashboard = {
           inherit category;
-          parent = name;
           name = "Redis";
           icon = "di:redis";
+          parent = name;
         };
       };
 
@@ -271,24 +262,24 @@ in {
         extraConfig.Container.ShmSize = "128mb";
 
         stack = name;
-        glance = {
+        dashboard = {
           inherit category;
-          parent = name;
           name = "Postgres";
           icon = "di:postgres";
+          parent = name;
         };
       };
 
       ${mlName} = {
-        image = "ghcr.io/immich-app/immich-machine-learning:v3.2.2";
+        image = "ghcr.io/immich-app/immich-machine-learning:v3.3.3";
         volumeMap.cache = "${storage}/model-cache:/cache";
 
         stack = name;
-        glance = {
+        dashboard = {
           inherit category;
           name = "Immich Machine Learning";
-          parent = name;
           icon = "di:immich";
+          parent = name;
         };
       };
     };

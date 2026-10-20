@@ -1,5 +1,5 @@
 {
-  dummyHash,
+  dummyClientSecretHash,
   dummySecretFile,
   ...
 }: {
@@ -11,7 +11,7 @@
     oidc = {
       enable = true;
       clientSecretFile = dummySecretFile;
-      clientSecretHash = dummyHash;
+      clientSecretHash = dummyClientSecretHash;
     };
   };
 }

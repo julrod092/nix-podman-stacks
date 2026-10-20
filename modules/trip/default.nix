@@ -108,7 +108,7 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "ghcr.io/itskovacs/trip:1.49.0";
+        image = "ghcr.io/itskovacs/trip:1.50.1";
         exec = "fastapi run /app/trip/main.py --host 0.0.0.0";
         volumeMap.storage = "${storage}/storage:/app/storage";
 
@@ -125,18 +125,9 @@ in {
         stack = name;
         port = 8000;
         traefik.name = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "sh-trip";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "sh:trip";
         };
       };

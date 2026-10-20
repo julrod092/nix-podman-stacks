@@ -73,7 +73,7 @@ in {
     };
 
     services.podman.containers.${name} = {
-      image = "docker.io/stirlingtools/stirling-pdf:2.14.3";
+      image = "docker.io/stirlingtools/stirling-pdf:3.2.0";
       volumeMap.configs = "${storage}/configs:/configs";
       extraEnv =
         {
@@ -101,18 +101,9 @@ in {
       wantsContainer = lib.optional cfg.oidc.enable "authelia";
       port = 8080;
       traefik.name = "pdf";
-      homepage = {
-        inherit category;
-        name = displayName;
-        settings = {
-          inherit description;
-          icon = "stirling-pdf";
-        };
-      };
-      glance = {
+      dashboard = {
         inherit category description;
         name = displayName;
-        id = name;
         icon = "di:stirling-pdf";
       };
     };

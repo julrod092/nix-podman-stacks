@@ -127,11 +127,11 @@ in rec {
       };
 
       stack = stackName;
-      glance = {
+      dashboard = {
         inherit category;
         name = "Postgres";
-        parent = name;
         icon = "di:postgres";
+        parent = name;
       };
     };
 

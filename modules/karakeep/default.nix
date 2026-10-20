@@ -131,25 +131,17 @@ in {
         stack = name;
         port = 3000;
         traefik.name = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "karakeep";
-            widget.type = "karakeep";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
-          icon = "auto-invert di:karakeep-dark";
+          icon = "di:karakeep";
         };
+        glance.icon = "auto-invert di:karakeep-dark";
+        homepage.settings.widget.type = "karakeep";
       };
 
       ${chromeName} = {
-        image = "ghcr.io/karakeep-app/karakeep-chrome:151.0.7922.47-r1";
+        image = "ghcr.io/karakeep-app/karakeep-chrome:154.0.8037.57-r1";
         exec = lib.concatStringsSep " " [
           "--disable-gpu"
           "--disable-dev-shm-usage"
@@ -160,11 +152,11 @@ in {
         extraPodmanArgs = ["--init"];
 
         stack = name;
-        glance = {
+        dashboard = {
           inherit category;
           name = "Chrome";
-          parent = name;
           icon = "di:chrome";
+          parent = name;
         };
       };
 
@@ -179,11 +171,11 @@ in {
         volumeMap.data = "${storage}/meilisearch:/meili_data";
 
         stack = name;
-        glance = {
+        dashboard = {
           inherit category;
           name = "Meilisearch";
-          parent = name;
           icon = "di:meilisearch";
+          parent = name;
         };
       };
     };

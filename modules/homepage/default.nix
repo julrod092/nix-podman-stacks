@@ -7,6 +7,7 @@
   name = "homepage";
   externalStorage = config.nps.externalStorageBaseDir;
   cfg = config.nps.stacks.${name};
+  sections = config.nps.stacks.socket-proxy.sections;
   yaml = pkgs.formats.yaml {};
 
   category = "Network & Administration";
@@ -66,7 +67,16 @@ in {
   imports =
     [
       ./extension.nix
-      (import ../docker-socket-proxy/mkSocketProxyOptionModule.nix {stack = name;})
+      (import ../socket-proxy/mkSocketProxyOptionModule.nix {
+        stack = name;
+        permissions = {
+          GET = [
+            sections.containers
+            sections.info
+            sections.events
+          ];
+        };
+      })
     ]
     ++ import ../mkAliases.nix config lib name [name];
 
@@ -247,7 +257,7 @@ in {
     };
 
     services.podman.containers.${name} = {
-      image = "ghcr.io/gethomepage/homepage:v2.4.0";
+      image = "ghcr.io/gethomepage/homepage:v2.6.0";
       volumeMap = {
         ext = "${externalStorage}:/ext:ro";
         docker = "${docker}:/app/config/docker.yaml";
@@ -279,23 +289,22 @@ in {
       port = 3000;
       traefik = {
         inherit name;
-        subDomain = lib.mkDefault "";
       };
 
-      glance = {
+      dashboard = {
         inherit category description;
         name = displayName;
-        id = name;
         icon = "di:homepage.png";
       };
+      homepage.category = null;
     };
 
     nps.stacks.${name} = {
       docker.local =
         if cfg.useSocketProxy
         then {
-          host = "docker-socket-proxy";
-          port = config.nps.stacks.docker-socket-proxy.port;
+          host = "socket-proxy";
+          port = config.nps.stacks.socket-proxy.port;
         }
         else {socket = "/var/run/docker.sock";};
       settings.statusStyle = "dot";

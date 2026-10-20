@@ -33,7 +33,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     services.podman.containers.${name} = {
-      image = "docker.io/deluan/navidrome:0.64.0";
+      image = "docker.io/deluan/navidrome:0.64.2";
       volumeMap = {
         data = "${storage}/data:/data";
         music = "${mediaStorage}/music:/music:ro";
@@ -48,21 +48,12 @@ in {
       port = 4533;
       traefik.name = name;
 
-      homepage = {
-        inherit category;
-        name = displayName;
-        settings = {
-          inherit description;
-          icon = "navidrome";
-          widget.type = "navidrome";
-        };
-      };
-      glance = {
+      dashboard = {
         inherit category description;
         name = displayName;
-        id = name;
         icon = "di:navidrome";
       };
+      homepage.settings.widget.type = "navidrome";
     };
   };
 }

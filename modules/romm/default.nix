@@ -177,9 +177,16 @@ in {
       ];
     };
 
+    nps.stacks.${name}.settings = {
+      filesystem.structure = {
+        default = "roms/{platform}/{game}";
+        firmware = "bios/{platform}";
+      };
+    };
+
     services.podman.containers = {
       ${name} = {
-        image = "ghcr.io/rommapp/romm:5.2.0";
+        image = "ghcr.io/rommapp/romm:5.4.0";
         volumeMap = {
           resources = "${storage}/resources:/romm/resources";
           redisData = "${storage}/redis_data:/redis-data";
@@ -237,21 +244,12 @@ in {
 
         port = 8080;
         traefik.name = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "romm";
-            widget.type = "romm";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "di:romm";
         };
+        homepage.settings.widget.type = "romm";
       };
       ${dbName} = {
         image = "docker.io/mariadb:11";
@@ -274,11 +272,11 @@ in {
         };
 
         stack = name;
-        glance = {
-          parent = name;
+        dashboard = {
+          inherit category;
           name = "MariaDB";
           icon = "si:mariadb";
-          inherit category;
+          parent = name;
         };
       };
     };

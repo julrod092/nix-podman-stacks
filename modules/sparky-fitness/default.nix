@@ -44,7 +44,7 @@ in {
         Extra environment variables to set for the container.
         Variables can be either set directly or sourced from a file (e.g. for secrets).
 
-        See <https://codewithcj.github.io/SparkyFitness/install/environment-variables/#optional-configuration>
+        See <https://codewithcj.github.io/SparkyFitness/install/environment-variables>
       '';
       example = {
         SOME_SECRET = {
@@ -139,7 +139,7 @@ in {
 
     services.podman.containers = {
       ${frontendName} = {
-        image = "ghcr.io/codewithcj/sparkyfitness-frontend:v1.7.1";
+        image = "ghcr.io/codewithcj/sparkyfitness-frontend:v1.8.0";
 
         extraEnv = {
           SPARKY_FITNESS_FRONTEND_URL = cfg.containers.${frontendName}.traefik.serviceUrl;
@@ -152,24 +152,16 @@ in {
         stack = stackName;
         port = 80;
         traefik.name = stackName;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "sparky-fitness";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = stackName;
           icon = "di:sparky-fitness";
+          id = stackName;
         };
       };
 
       ${backendName} = {
-        image = "ghcr.io/codewithcj/sparkyfitness-server:v1.7.1";
+        image = "ghcr.io/codewithcj/sparkyfitness-server:v1.8.0";
 
         volumeMap = {
           backup = "${storage}/backup:/app/SparkyFitnessServer/backup";
@@ -213,11 +205,11 @@ in {
         port = 3010;
         traefik.name = backendName;
 
-        glance = {
+        dashboard = {
           inherit category;
           name = "Backend";
-          parent = stackName;
           icon = "di:sparky-fitness";
+          parent = stackName;
         };
       };
 
@@ -242,11 +234,11 @@ in {
         };
 
         stack = stackName;
-        glance = {
+        dashboard = {
           inherit category;
           name = "Postgres";
-          parent = stackName;
           icon = "di:postgres";
+          parent = stackName;
         };
       };
     };

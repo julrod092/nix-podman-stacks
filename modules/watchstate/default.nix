@@ -19,24 +19,15 @@ in {
 
   config = lib.mkIf cfg.enable {
     services.podman.containers.${name} = {
-      image = "ghcr.io/arabcoders/watchstate:v1.10.6";
+      image = "ghcr.io/arabcoders/watchstate:v1.10.8";
       user = "${toString config.nps.defaultUid}:${toString config.nps.defaultGid}";
       volumeMap.data = "${storage}/data:/config";
 
       port = 8080;
       traefik.name = name;
-      homepage = {
-        inherit category;
-        name = displayName;
-        settings = {
-          inherit description;
-          icon = "sh-watchstate";
-        };
-      };
-      glance = {
+      dashboard = {
         inherit category description;
         name = displayName;
-        id = name;
         icon = "sh:watchstate";
       };
     };

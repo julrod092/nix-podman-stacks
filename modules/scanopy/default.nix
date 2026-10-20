@@ -110,7 +110,7 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "ghcr.io/scanopy/scanopy/server:v0.17.16";
+        image = "ghcr.io/scanopy/scanopy/server:v0.18.2";
         volumeMap.data = "${storage}/data:/data";
 
         extraEnv =
@@ -134,25 +134,15 @@ in {
 
         wantsContainer = [dbName] ++ lib.optional cfg.oidc.enable "authelia";
 
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "scanopy";
-          };
-        };
-
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "di:scanopy";
         };
       };
 
       ${daemonName} = {
-        image = "ghcr.io/scanopy/scanopy/daemon:v0.17.16";
+        image = "ghcr.io/scanopy/scanopy/daemon:v0.18.2";
 
         volumeMap = {
           config = "${storage}/daemon:/root/.config";
@@ -171,11 +161,11 @@ in {
           }
           // cfg.extraEnv;
 
-        glance = {
+        dashboard = {
           inherit category;
-          parent = name;
           name = "Daemon";
           icon = "di:scanopy";
+          parent = name;
         };
       };
 
@@ -189,11 +179,11 @@ in {
           POSTGRES_PASSWORD.fromFile = cfg.db.passwordFile;
         };
 
-        glance = {
+        dashboard = {
           inherit category;
-          parent = name;
           name = "Postgres";
           icon = "di:postgres";
+          parent = name;
         };
       };
     };

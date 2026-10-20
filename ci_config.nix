@@ -6,12 +6,15 @@
   pkgs,
   ...
 }: let
-  dummyId = "dummy";
-  dummySecret = "insecure_secret";
-  dummySecretFile = "${pkgs.writeText "insecure_secret" dummySecret}";
-  dummyHash = "$argon2id$v=19$m=65536,t=3,p=4$8USywQgWNhOf4drzlVTieA$Rm8SlHy+ipThtIa/6nMMir2QkoXESCr4uCB2aAdvlmo";
-  dummyUser = "admin";
-  dummyEmail = "admin@example.com";
+  inherit
+    (import ./tests/dummy-values.nix pkgs)
+    dummyClientSecretHash
+    dummyEmail
+    dummyId
+    dummySecret
+    dummySecretFile
+    dummyUser
+    ;
 in {
   config.nps = rec {
     hostIP4Address = "192.168.178.2";
@@ -34,7 +37,7 @@ in {
         };
         oidc = {
           registerClient = true;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
       };
 
@@ -58,7 +61,7 @@ in {
       audiobookshelf = {
         oidc = {
           registerClient = true;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
       };
 
@@ -105,7 +108,7 @@ in {
         };
         oidc = {
           registerClient = true;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
       };
 
@@ -114,7 +117,7 @@ in {
         enableGrafanaDashboard = true;
         enablePrometheusExport = true;
         containers.blocky = {
-          homepage.settings.href = "${config.nps.containers.grafana.traefik.serviceUrl}/d/blocky";
+          dashboard.url = "${config.nps.containers.grafana.traefik.serviceUrl}/d/blocky";
           gatus = {
             enable = true;
             settings = {
@@ -129,6 +132,19 @@ in {
             };
           };
         };
+      };
+
+      bookorbit = {
+        enable = true;
+        jwtSecretFile = dummySecretFile;
+        podcastEncryptionKeyFile = dummySecretFile;
+        setupBootstrapTokenFile = dummySecretFile;
+        db.passwordFile = dummySecretFile;
+        oidc = {
+          registerClient = true;
+          clientSecretHash = dummyClientSecretHash;
+        };
+        tts.enable = true;
       };
 
       bytestash = {
@@ -198,14 +214,12 @@ in {
         ];
       };
 
-      docker-socket-proxy.enable = true;
-
       donetick = {
         jwtSecretFile = dummySecretFile;
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
         settings.is_user_creation_disabled = true;
       };
@@ -219,6 +233,47 @@ in {
               policy = "one_factor";
             }
           ];
+        };
+      };
+
+      dynacat = {
+        enable = true;
+        secretKeyFile = dummySecretFile;
+        settings.pages.home.columns.start = {
+          rank = 500;
+          size = "small";
+          widgets = [
+            {
+              type = "server-stats";
+              servers = [
+                {
+                  type = "local";
+                  name = "Server";
+                }
+              ];
+            }
+            {
+              type = "reddit";
+              subreddit = "selfhosted";
+              collapse-after = 3;
+            }
+          ];
+        };
+        oidc = {
+          enable = true;
+          clientSecretFile = dummySecretFile;
+          clientSecretHash = dummyClientSecretHash;
+        };
+      };
+
+      excalidash = {
+        enable = true;
+        jwtSecretFile = dummySecretFile;
+        csrfSecretFile = dummySecretFile;
+        oidc = {
+          enable = true;
+          clientSecretFile = dummySecretFile;
+          clientSecretHash = dummyClientSecretHash;
         };
       };
 
@@ -236,7 +291,7 @@ in {
         };
         oidc = {
           enable = true;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
           clientSecretFile = dummySecretFile;
         };
         settings.auth.methods.password.enabled = false;
@@ -278,6 +333,11 @@ in {
         };
       };
 
+      frigate = {
+        enable = true;
+        containers.frigate.devices = lib.mkForce [];
+      };
+
       gatus = {
         enable = true;
         db = {
@@ -299,7 +359,7 @@ in {
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
       };
 
@@ -398,7 +458,7 @@ in {
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
       };
 
@@ -408,7 +468,7 @@ in {
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
         db = {
           type = "postgres";
@@ -464,19 +524,45 @@ in {
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
         db.passwordFile = dummySecretFile;
       };
 
-      it-tools.enable = true;
+      it-tools = {
+        enable = true;
+
+        containers.it-tools.sablier = {
+          enable = true;
+          group = "devtools";
+          idleReplicas = "1";
+          middleware = {
+            sessionDuration = "10m";
+            failOpen = true;
+            ignoreUserAgent = ["curl"];
+            # `displayName` is intentionally unset, `jotty` sets it and the strategy default has
+            # to survive for containers that do not.
+            dynamic.theme = "matrix";
+          };
+        };
+      };
 
       jotty = {
         enable = true;
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
+        };
+        # Second container of the "devtools" Sablier group, to exercise merging.
+        containers.jotty.sablier = {
+          enable = true;
+          group = "devtools";
+          middleware = {
+            sessionDuration = "20m";
+            ignoreUserAgent = ["(?i)uptimerobot" "curl"];
+            dynamic.displayName = "Jotty";
+          };
         };
       };
 
@@ -485,7 +571,7 @@ in {
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
         nextauthSecretFile = dummySecretFile;
         meiliMasterKeyFile = dummySecretFile;
@@ -507,7 +593,7 @@ in {
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
       };
 
@@ -516,7 +602,7 @@ in {
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
       };
 
@@ -543,7 +629,7 @@ in {
         enable = true;
         oidc = {
           enable = true;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
           clientSecretFile = dummySecretFile;
         };
       };
@@ -552,7 +638,7 @@ in {
         enable = true;
         oidc = {
           registerClient = true;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
         db = {
           type = "postgres";
@@ -602,6 +688,24 @@ in {
         };
       };
 
+      netbird-client = {
+        enable = true;
+        setupKeyFile = dummySecretFile;
+      };
+
+      netbird-management = {
+        enable = true;
+        authSecretFile = dummySecretFile;
+        storeEncryptionKeyFile = dummySecretFile;
+        adminProvisioning = {
+          email = dummyEmail;
+          passwordFile = dummySecretFile;
+        };
+        oidc = {
+          clientSecretFile = dummySecretFile;
+        };
+      };
+
       n8n.enable = true;
 
       navidrome.enable = true;
@@ -615,7 +719,7 @@ in {
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
       };
 
@@ -630,6 +734,20 @@ in {
         enablePrometheusExport = true;
       };
 
+      omnigent = {
+        enable = true;
+        db = {
+          type = "postgres";
+          passwordFile = dummySecretFile;
+        };
+        oidc = {
+          enable = true;
+          clientSecretFile = dummySecretFile;
+          clientSecretHash = dummyClientSecretHash;
+          cookieSecretFile = dummySecretFile;
+        };
+      };
+
       omnitools.enable = true;
 
       outline = {
@@ -640,7 +758,7 @@ in {
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
       };
 
@@ -668,7 +786,7 @@ in {
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
         secretKeyFile = dummySecretFile;
         extraEnv = {
@@ -723,7 +841,7 @@ in {
           oidc = {
             enable = true;
             clientSecretFile = dummySecretFile;
-            clientSecretHash = dummyHash;
+            clientSecretHash = dummyClientSecretHash;
           };
         };
       };
@@ -739,7 +857,7 @@ in {
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
         db = {
           userPasswordFile = dummySecretFile;
@@ -793,6 +911,8 @@ in {
         };
       };
 
+      socket-proxy.enable = true;
+
       sparky-fitness = {
         enable = true;
 
@@ -839,7 +959,7 @@ in {
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
       };
 
@@ -850,7 +970,7 @@ in {
             oidc = {
               enable = true;
               clientSecretFile = dummySecretFile;
-              clientSecretHash = dummyHash;
+              clientSecretHash = dummyClientSecretHash;
             };
           };
           seerr.enable = true;
@@ -882,7 +1002,7 @@ in {
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
         containers.tandoor.extraEnv = {
           # https://docs.tandoor.dev/system/configuration/#default-permissions
@@ -897,7 +1017,7 @@ in {
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
         db.passwordFile = dummySecretFile;
       };
@@ -917,7 +1037,7 @@ in {
         enable = true;
         oidc = {
           enable = true;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
           clientSecretFile = dummySecretFile;
         };
       };
@@ -927,7 +1047,7 @@ in {
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
       };
 
@@ -938,7 +1058,7 @@ in {
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
       };
 
@@ -950,7 +1070,7 @@ in {
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
         settings = {
           service.enableregistration = false;
@@ -984,7 +1104,7 @@ in {
         oidc = {
           enable = true;
           clientSecretFile = dummySecretFile;
-          clientSecretHash = dummyHash;
+          clientSecretHash = dummyClientSecretHash;
         };
       };
 

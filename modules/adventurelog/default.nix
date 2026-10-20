@@ -124,19 +124,11 @@ in {
         stack = name;
         port = 3000;
         traefik.name = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "adventure-log";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "di:adventure-log";
+          id = name;
         };
       };
 
@@ -171,7 +163,7 @@ in {
         stack = name;
         port = 8000;
         traefik.name = backendName;
-        glance = {
+        dashboard = {
           inherit category;
           name = "Backend";
           parent = name;
@@ -200,7 +192,7 @@ in {
         };
 
         stack = name;
-        glance = {
+        dashboard = {
           inherit category;
           name = "Postgres";
           parent = name;

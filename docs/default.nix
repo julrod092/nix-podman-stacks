@@ -196,6 +196,10 @@
               text = "Examples";
               link = "/examples";
             }
+            {
+              text = "Integration Tests";
+              link = "/testing";
+            }
           ];
         }
       ];
@@ -241,9 +245,14 @@
               text = "Secrets & Templating";
               link = "/secrets-templating";
             }
+
             {
               text = "Examples";
               link = "/examples";
+            }
+            {
+              text = "Integration Tests";
+              link = "/testing";
             }
           ];
         }

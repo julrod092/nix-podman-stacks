@@ -68,7 +68,7 @@ in {
     };
 
     services.podman.containers.${name} = {
-      image = "docker.io/binwiederhier/ntfy:v2.28.0";
+      image = "docker.io/binwiederhier/ntfy:v2.32.0";
       exec = "serve";
       volumeMap.data = "${storage}:/var/lib/ntfy";
 
@@ -93,18 +93,9 @@ in {
       stack = name;
       port = 80;
       traefik.name = name;
-      homepage = {
-        inherit category;
-        name = displayName;
-        settings = {
-          inherit description;
-          icon = "ntfy";
-        };
-      };
-      glance = {
+      dashboard = {
         inherit category description;
         name = displayName;
-        id = name;
         icon = "di:ntfy";
       };
     };

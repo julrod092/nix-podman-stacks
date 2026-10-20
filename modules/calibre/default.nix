@@ -27,7 +27,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     services.podman.containers.${name} = {
-      image = "docker.io/crocodilestick/calibre-web-automated:v4.0.6";
+      image = "docker.io/crocodilestick/calibre-web-automated:v4.0.8";
       volumeMap = {
         config = "${storage}/config:/config";
         ingest = "${storage}/ingest:/cwa-book-ingest";
@@ -41,21 +41,12 @@ in {
 
       stack = name;
       traefik.name = name;
-      homepage = {
-        inherit category;
-        name = displayName;
-        settings = {
-          inherit description;
-          icon = "calibre-web";
-          widget.type = "calibreweb";
-        };
-      };
-      glance = {
+      dashboard = {
         inherit category description;
         name = displayName;
-        id = name;
         icon = "di:calibre-web";
       };
+      homepage.settings.widget.type = "calibreweb";
     };
   };
 }

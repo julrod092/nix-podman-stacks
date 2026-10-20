@@ -1,6 +1,6 @@
 {
   dummyEmail,
-  dummyHash,
+  dummyClientSecretHash,
   dummySecretFile,
   dummyUser,
   ...
@@ -16,7 +16,7 @@
     oidc = {
       enable = true;
       clientSecretFile = dummySecretFile;
-      clientSecretHash = dummyHash;
+      clientSecretHash = dummyClientSecretHash;
     };
     secretKeyFile = dummySecretFile;
     extraEnv = {

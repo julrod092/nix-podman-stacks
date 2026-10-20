@@ -158,7 +158,7 @@ in {
       port = 8084;
       ingestDir = "/books";
     in {
-      image = "ghcr.io/calibrain/shelfmark-lite:v1.3.15";
+      image = "ghcr.io/calibrain/shelfmark-lite:v1.4.0";
       volumeMap = {
         config = "${storage}/config:/config";
         ingest = "${cfg.downloadDirectory}:${ingestDir}";
@@ -209,17 +209,8 @@ in {
       port = port;
       traefik.name = name;
       stack = name;
-      homepage = {
+      dashboard = {
         inherit category;
-        name = displayName;
-        settings = {
-          description = description;
-          icon = "shelfmark";
-        };
-      };
-      glance = {
-        inherit category;
-        id = name;
         name = displayName;
         description = description;
         icon = "di:shelfmark.webp";

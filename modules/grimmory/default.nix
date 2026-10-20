@@ -118,7 +118,7 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "ghcr.io/grimmory-tools/grimmory:v3.4.1";
+        image = "ghcr.io/grimmory-tools/grimmory:v3.5.0";
         volumeMap = {
           data = "${storage}/data:/app/data";
           books = "${cfg.libraryPath}:/books";
@@ -146,21 +146,12 @@ in {
 
         port = 6060;
         traefik.name = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "sh-grimmory";
-            widget.type = "booklore";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "sh:grimmory";
         };
+        homepage.settings.widget.type = "booklore";
       };
       ${dbName} = {
         image = "docker.io/mariadb:11";
@@ -183,11 +174,11 @@ in {
         };
 
         stack = name;
-        glance = {
-          parent = name;
+        dashboard = {
+          inherit category;
           name = "MariaDB";
           icon = "si:mariadb";
-          inherit category;
+          parent = name;
         };
       };
     };

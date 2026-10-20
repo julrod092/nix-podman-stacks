@@ -1,6 +1,7 @@
 # Cloudflare-protected sites return 403 to link checkers
 exclude = [
-    'https://docs\.paperless-ngx\.com/.*'
+    'https://docs\.paperless-ngx\.com/.*',
+    'https://github.com/Tarow/nix-podman-stacks/tree/main/modules/.*' # Otherwise PRs for new stacks (that aren't on main yet) fail
 ]
 
 exclude_loopback = true

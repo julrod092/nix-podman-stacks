@@ -38,7 +38,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     services.podman.containers.${name} = {
-      image = "ghcr.io/jordan-dalby/bytestash:1.5.12";
+      image = "ghcr.io/jordan-dalby/bytestash:1.6.0";
       volumeMap.snippets = "${storage}/snippets:/data/snippets";
 
       environment = {
@@ -58,18 +58,9 @@ in {
 
       port = 5000;
       traefik.name = name;
-      homepage = {
-        inherit category;
-        name = displayName;
-        settings = {
-          inherit description;
-          icon = "bytestash";
-        };
-      };
-      glance = {
+      dashboard = {
         inherit category description;
         name = displayName;
-        id = name;
         icon = "di:bytestash";
       };
     };

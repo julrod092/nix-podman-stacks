@@ -11,6 +11,7 @@ let
     bentopdf = ./bentopdf;
     beszel = ./beszel;
     blocky = ./blocky;
+    bookorbit = ./bookorbit;
     bytestash = ./bytestash;
     calibre = ./calibre;
     changedetection = ./changedetection;
@@ -21,13 +22,15 @@ let
     dockdns = ./dockdns;
     donetick = ./donetick;
     dozzle = ./dozzle;
-    docker-socket-proxy = ./docker-socket-proxy;
+    dynacat = ./dynacat;
+    excalidash = ./excalidash;
     filebrowser-quantum = ./filebrowser-quantum;
     flaresolverr = ./flaresolverr;
     forgejo = ./forgejo;
     fredy = ./fredy;
     free-games-claimer = ./free-games-claimer;
     freshrss = ./freshrss;
+    frigate = ./frigate;
     gatus = ./gatus;
     glance = ./glance;
     grimmory = ./grimmory;
@@ -57,9 +60,12 @@ let
     monitoring = ./monitoring;
     n8n = ./n8n;
     navidrome = ./navidrome;
+    netbird-client = ./netbird-client;
+    netbird-management = ./netbird-management;
     networking-toolbox = ./networking-toolbox;
     norish = ./norish;
     ntfy = ./ntfy;
+    omnigent = ./omnigent;
     omnitools = ./omnitools;
     outline = ./outline;
     pangolin-newt = ./pangolin-newt;
@@ -75,6 +81,7 @@ let
     scanopy = ./scanopy;
     searxng = ./searxng;
     shelfmark = ./shelfmark;
+    socket-proxy = ./socket-proxy;
     sparky-fitness = ./sparky-fitness;
     spliit = ./spliit;
     sshwifty = ./sshwifty;

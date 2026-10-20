@@ -4,7 +4,7 @@ machine.succeed("loginctl enable-linger ci")
 machine.wait_until_succeeds("test -S /run/user/1000/systemd/private")
 (status, output) = machine.execute(
     "su ci -c 'XDG_RUNTIME_DIR=/run/user/1000 /etc/nps-test/check.sh'",
-    timeout=900,
+    timeout=CHECK_TIMEOUT,
 )
 print(output)
 if status != 0:

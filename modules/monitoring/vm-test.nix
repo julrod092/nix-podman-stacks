@@ -1,11 +1,11 @@
 {
-  dummyHash,
+  dummyClientSecretHash,
   dummySecretFile,
   ...
 }: {
   imports = [
     ../authelia/vm-test.nix
-    ../docker-socket-proxy/vm-test.nix
+    ../socket-proxy/vm-test.nix
     ../ntfy/vm-test.nix
   ];
   nps.stacks.monitoring = {
@@ -14,7 +14,7 @@
     grafana.oidc = {
       enable = true;
       clientSecretFile = dummySecretFile;
-      clientSecretHash = dummyHash;
+      clientSecretHash = dummyClientSecretHash;
     };
     prometheus.rules.groups = [
       {

@@ -6,6 +6,7 @@
 }: let
   stackName = "monitoring";
   cfg = config.nps.stacks.${stackName};
+  sections = config.nps.stacks.socket-proxy.sections;
   storage = "${config.nps.storageBaseDir}/${stackName}";
 
   category = "Monitoring";
@@ -50,17 +51,41 @@
 
   dockerHost =
     if cfg.alloy.useSocketProxy
-    then config.nps.stacks.docker-socket-proxy.address
+    then config.nps.stacks.socket-proxy.address
     else "unix:///var/run/docker.sock";
 in {
   imports =
     [
       ./extension.nix
       # Create the `alloy.useSocketProxy` option
-      (import ../docker-socket-proxy/mkSocketProxyOptionModule.nix {
+      (import ../socket-proxy/mkSocketProxyOptionModule.nix {
         stack = stackName;
         container = alloyName;
         subPath = alloyName;
+        permissions = {
+          GET = [
+            sections.containers
+            sections.networks
+          ];
+        };
+      })
+      # Create the `podmanExporter.useSocketProxy` option
+      (import ../socket-proxy/mkSocketProxyOptionModule.nix {
+        stack = stackName;
+        container = podmanExporterName;
+        subPath = ["podmanExporter"];
+        targetLocation = "/var/run/podman/podman.sock";
+        permissions = {
+          GET = [
+            sections.containers
+            sections.pods
+            sections.events
+            sections.images
+            sections.networks
+            sections.volumes
+            sections.info
+          ];
+        };
       })
     ]
     ++ import ../mkAliases.nix config lib stackName [
@@ -83,7 +108,7 @@ in {
           Configuration files for each service will be provided automatically to work out of the box.
         '';
       };
-    grafana = {
+    ${grafanaName} = {
       enable =
         lib.mkEnableOption "Grafana"
         // {
@@ -153,7 +178,7 @@ in {
         };
       };
     };
-    loki = {
+    ${lokiName} = {
       enable =
         lib.mkEnableOption "Loki"
         // {
@@ -176,7 +201,7 @@ in {
         '';
       };
     };
-    alloy = {
+    ${alloyName} = {
       enable =
         lib.mkEnableOption "Alloy"
         // {
@@ -212,7 +237,7 @@ in {
         '';
       };
     };
-    prometheus = {
+    ${prometheusName} = {
       enable =
         lib.mkEnableOption "Prometheus"
         // {
@@ -246,7 +271,7 @@ in {
       };
     };
     podmanExporter.enable = lib.mkEnableOption "Podman Metrics Exporter" // {default = true;};
-    alertmanager = {
+    ${alertmanagerName} = {
       enable = lib.mkOption {
         type = lib.types.bool;
         default = false;
@@ -409,7 +434,7 @@ in {
 
     services.podman.containers = {
       ${grafanaName} = lib.mkIf cfg.grafana.enable {
-        image = "docker.io/grafana/grafana:13.2.2";
+        image = "docker.io/grafana/grafana:13.2.4";
         user = config.nps.defaultUid;
         volumeMap = {
           data = "${storage}/grafana/data:/var/lib/grafana";
@@ -454,22 +479,13 @@ in {
         port = 3000;
         stack = stackName;
         traefik.name = grafanaName;
-        homepage = {
+        dashboard = {
           inherit category;
           name = grafanaDisplayName;
-          settings = {
-            description = grafanaDescription;
-            icon = "grafana";
-            widget.type = "grafana";
-          };
-        };
-        glance = {
-          inherit category;
           description = grafanaDescription;
-          name = grafanaDisplayName;
-          id = grafanaName;
           icon = "di:grafana";
         };
+        homepage.settings.widget.type = "grafana";
       };
 
       ${lokiName} = lib.mkIf cfg.loki.enable {
@@ -482,19 +498,10 @@ in {
         };
 
         stack = stackName;
-        homepage = {
+        dashboard = {
           inherit category;
           name = lokiDisplayName;
-          settings = {
-            description = lokiDescription;
-            icon = "loki";
-          };
-        };
-        glance = {
-          inherit category;
           description = lokiDescription;
-          name = lokiDisplayName;
-          id = lokiName;
           icon = "di:loki";
         };
       };
@@ -503,26 +510,17 @@ in {
         configDst = "/etc/alloy/config.alloy";
       in
         lib.mkIf cfg.alloy.enable {
-          image = "docker.io/grafana/alloy:v1.19.2";
+          image = "docker.io/grafana/alloy:v1.21.0";
           volumeMap.settings = "${cfg.alloy.config}:${configDst}";
           exec = "run --server.http.listen-addr=0.0.0.0:${toString cfg.alloy.port} --storage.path=/var/lib/alloy/data ${configDst}";
 
           stack = stackName;
           inherit (cfg.alloy) port;
           traefik.name = alloyName;
-          homepage = {
+          dashboard = {
             inherit category;
             name = alloyDisplayName;
-            settings = {
-              description = alloyDescription;
-              icon = "alloy";
-            };
-          };
-          glance = {
-            inherit category;
             description = alloyDescription;
-            name = alloyDisplayName;
-            id = alloyName;
             icon = "di:alloy";
           };
         };
@@ -531,7 +529,7 @@ in {
         configDst = "/etc/prometheus/prometheus.yml";
       in
         lib.mkIf cfg.prometheus.enable {
-          image = "docker.io/prom/prometheus:v3.14.0";
+          image = "docker.io/prom/prometheus:v3.15.0";
           exec = "--config.file=${configDst}";
           user = config.nps.defaultUid;
           volumeMap = {
@@ -543,46 +541,31 @@ in {
           port = cfg.prometheus.port;
           stack = stackName;
           traefik.name = "prometheus";
-          homepage = {
+          dashboard = {
             inherit category;
             name = prometheusDisplayName;
-            settings = {
-              description = prometheusDescription;
-              icon = "prometheus";
-              widget.type = "prometheus";
-            };
-          };
-          glance = {
-            inherit category;
             description = prometheusDescription;
-            name = prometheusDisplayName;
-            id = prometheusName;
             icon = "di:prometheus";
           };
+          homepage.settings.widget.type = "prometheus";
         };
 
       ${podmanExporterName} = lib.mkIf cfg.podmanExporter.enable {
         image = "quay.io/navidys/prometheus-podman-exporter:v2.0.0";
-        volumeMap.socket = "${config.nps.socketLocation}:/var/run/podman/podman.sock";
 
-        environment.CONTAINER_HOST = "unix:///var/run/podman/podman.sock";
+        environment.CONTAINER_HOST =
+          if cfg.podmanExporter.useSocketProxy
+          then config.nps.stacks.socket-proxy.address
+          else "unix:///var/run/podman/podman.sock";
+
         user = config.nps.defaultUid;
         extraPodmanArgs = ["--security-opt=label=disable"];
 
         stack = stackName;
-        homepage = {
+        dashboard = {
           inherit category;
           name = podmanExporterDisplayName;
-          settings = {
-            description = podmanExporterDescription;
-            icon = "podman";
-          };
-        };
-        glance = {
-          inherit category;
           description = podmanExporterDescription;
-          name = podmanExporterDisplayName;
-          id = podmanExporterName;
           icon = "di:podman";
         };
       };
@@ -600,19 +583,10 @@ in {
         port = 9093;
         traefik.name = alertmanagerName;
 
-        homepage = {
+        dashboard = {
           inherit category;
           name = alertmanagerDisplayName;
-          settings = {
-            description = alertmanagerDescription;
-            icon = "alertmanager";
-          };
-        };
-        glance = {
-          inherit category;
           description = alertmanagerDescription;
-          name = alertmanagerDisplayName;
-          id = alertmanagerName;
           icon = "di:alertmanager";
         };
       };
@@ -630,19 +604,10 @@ in {
         stack = stackName;
         network = ["ntfy"];
 
-        homepage = {
+        dashboard = {
           inherit category;
           name = alertmanagerNtfyDisplayName;
-          settings = {
-            description = alertmanagerNtfyDescription;
-            icon = "ntfy";
-          };
-        };
-        glance = {
-          inherit category;
           description = alertmanagerNtfyDescription;
-          name = alertmanagerNtfyDisplayName;
-          id = alertmanagerNtfyName;
           icon = "di:ntfy";
         };
       };

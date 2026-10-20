@@ -104,7 +104,7 @@ in {
 
     services.podman.containers = {
       ${name} = {
-        image = "ghcr.io/sysadminsmedia/homebox:0.26.2";
+        image = "ghcr.io/sysadminsmedia/homebox:0.27.0";
         volumeMap.data = "${storage}/data:/data";
 
         extraEnv =
@@ -145,18 +145,9 @@ in {
         port = 7745;
         traefik.name = name;
         stack = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "homebox";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "di:homebox";
         };
       };
@@ -171,11 +162,11 @@ in {
         };
 
         stack = name;
-        glance = {
+        dashboard = {
           inherit category;
-          parent = name;
           name = "Postgres";
           icon = "di:postgres";
+          parent = name;
         };
       };
     };

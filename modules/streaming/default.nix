@@ -86,7 +86,7 @@ in {
           The SABnzbd stack runs standalone and is attached to the streaming network and Traefik.
         '';
       };
-      jellyfin = {
+      ${jellyfinName} = {
         enable =
           lib.mkEnableOption "Jellyfin"
           // {
@@ -123,7 +123,7 @@ in {
           };
         };
       };
-      profilarr = {
+      ${profilarrName} = {
         enable = lib.mkEnableOption "Profilarr";
         enableParser = lib.mkEnableOption "Profilarr Parser";
         oidc = {
@@ -148,8 +148,8 @@ in {
           };
         };
       };
-      seerr.enable = lib.mkEnableOption "Seerr";
-      maintainerr.enable = lib.mkEnableOption "Maintainerr";
+      ${seerrName}.enable = lib.mkEnableOption "Seerr";
+      ${maintainerrName}.enable = lib.mkEnableOption "Maintainerr";
     }
     // (
       lib.genAttrs
@@ -260,7 +260,7 @@ in {
         in
           lib.mkIf cfg.jellyfin.enable {
             # renovate: versioning=regex:^version-(?<major>\d+)\.(?<minor>\d+)(?:\.(?<patch>\d+))?(?<compatibility>ubu\d+)$
-            image = "lscr.io/linuxserver/jellyfin:version-12.1ubu2604";
+            image = "lscr.io/linuxserver/jellyfin:version-12.2ubu2604";
             volumeMap = {
               config = "${storage}/${jellyfinName}:/config";
               media = "${mediaStorage}:/media";
@@ -292,26 +292,17 @@ in {
             port = 8096;
             stack = stackName;
             traefik.name = jellyfinName;
-            homepage = {
+            dashboard = {
               inherit category;
               name = jellyfinDisplayName;
-              settings = {
-                description = jellyfinDescription;
-                icon = "jellyfin";
-                widget.type = "jellyfin";
-              };
-            };
-            glance = {
-              inherit category;
               description = jellyfinDescription;
-              name = jellyfinDisplayName;
-              id = jellyfinName;
               icon = "di:jellyfin";
             };
+            homepage.settings.widget.type = "jellyfin";
           };
 
         ${seerrName} = lib.mkIf cfg.seerr.enable {
-          image = "ghcr.io/seerr-team/seerr:v3.4.1";
+          image = "ghcr.io/seerr-team/seerr:v3.5.0";
           user = "${toString config.nps.defaultUid}:${toString config.nps.defaultGid}";
           volumeMap.config = "${storage}/${seerrName}/config:/app/config";
           environment.PORT = 5055;
@@ -319,25 +310,16 @@ in {
           port = 5055;
           traefik.name = seerrName;
           stack = stackName;
-          homepage = {
+          dashboard = {
             inherit category;
             name = seerrDisplayName;
-            settings = {
-              description = seerrDescription;
-              icon = "overseerr";
-            };
-          };
-          glance = {
-            inherit category;
             description = seerrDescription;
-            name = seerrDisplayName;
-            id = seerrName;
             icon = "di:overseerr";
           };
         };
 
         ${maintainerrName} = lib.mkIf cfg.maintainerr.enable {
-          image = "ghcr.io/maintainerr/maintainerr:3.29.0";
+          image = "ghcr.io/maintainerr/maintainerr:3.30.2";
           user = "${toString config.nps.defaultUid}:${toString config.nps.defaultGid}";
           volumeMap = {
             data = "${storage}/${maintainerrName}/data:/opt/data";
@@ -347,19 +329,10 @@ in {
           port = 6246;
           traefik.name = maintainerrName;
           stack = stackName;
-          homepage = {
+          dashboard = {
             inherit category;
             name = maintainerrDisplayName;
-            settings = {
-              description = maintainerrDescription;
-              icon = "maintainerr";
-            };
-          };
-          glance = {
-            inherit category;
             description = maintainerrDescription;
-            name = maintainerrDisplayName;
-            id = maintainerrName;
             icon = "di:maintainerr";
           };
         };
@@ -390,19 +363,10 @@ in {
           port = 6868;
           traefik.name = profilarrName;
           stack = stackName;
-          homepage = {
+          dashboard = {
             inherit category;
             name = profilarrDisplayName;
-            settings = {
-              description = profilarrDescription;
-              icon = "profilarr";
-            };
-          };
-          glance = {
-            inherit category;
             description = profilarrDescription;
-            name = profilarrDisplayName;
-            id = profilarrName;
             icon = "di:profilarr";
           };
         };
@@ -410,11 +374,11 @@ in {
         ${profilarrParserName} = lib.mkIf cfg.profilarr.enableParser {
           image = "ghcr.io/dictionarry-hub/profilarr-parser:2.2.0";
           stack = stackName;
-          glance = {
+          dashboard = {
             inherit category;
             name = "Profilarr Parser";
-            parent = profilarrName;
             icon = "di:profilarr";
+            parent = profilarrName;
           };
         };
 
@@ -423,22 +387,13 @@ in {
             image = "lscr.io/linuxserver/sonarr:4.0.20";
             port = 8989;
 
-            homepage = {
+            dashboard = {
               inherit category;
               name = sonarrDisplayName;
-              settings = {
-                description = sonarrDescription;
-                icon = "sonarr";
-                widget.type = "sonarr";
-              };
-            };
-            glance = {
-              inherit category;
               description = sonarrDescription;
-              name = sonarrDisplayName;
-              id = sonarrName;
               icon = "di:sonarr";
             };
+            homepage.settings.widget.type = "sonarr";
           });
 
         ${radarrName} = lib.mkIf cfg.radarr.enable (arrlib.mkArrBase radarrName
@@ -446,45 +401,27 @@ in {
             image = "lscr.io/linuxserver/radarr:6.4.4";
             port = 7878;
 
-            homepage = {
+            dashboard = {
               inherit category;
               name = radarrDisplayName;
-              settings = {
-                description = radarrDescription;
-                icon = "radarr";
-                widget.type = "radarr";
-              };
-            };
-            glance = {
-              inherit category;
               description = radarrDescription;
-              name = radarrDisplayName;
-              id = radarrName;
               icon = "di:radarr";
             };
+            homepage.settings.widget.type = "radarr";
           });
 
         ${bazarrName} = lib.mkIf cfg.bazarr.enable (arrlib.mkArrBase bazarrName
           // {
-            image = "lscr.io/linuxserver/bazarr:1.6.1";
+            image = "lscr.io/linuxserver/bazarr:1.6.2";
             port = 6767;
 
-            homepage = {
+            dashboard = {
               inherit category;
               name = bazarrDisplayName;
-              settings = {
-                description = bazarrDescription;
-                icon = "bazarr";
-                widget.type = "bazarr";
-              };
-            };
-            glance = {
-              inherit category;
               description = bazarrDescription;
-              name = bazarrDisplayName;
-              id = bazarrName;
               icon = "di:bazarr";
             };
+            homepage.settings.widget.type = "bazarr";
           });
       }
       // arrlib.arrDbs [sonarrName radarrName bazarrName];

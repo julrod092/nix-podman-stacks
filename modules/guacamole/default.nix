@@ -16,6 +16,7 @@
 in {
   imports = import ../mkAliases.nix config lib name [
     name
+    guacdName
     dbName
   ];
 
@@ -171,18 +172,9 @@ in {
         stack = name;
         port = 8080;
         traefik.name = name;
-        homepage = {
-          inherit category;
-          name = displayName;
-          settings = {
-            inherit description;
-            icon = "guacamole";
-          };
-        };
-        glance = {
+        dashboard = {
           inherit category description;
           name = displayName;
-          id = name;
           icon = "di:guacamole";
         };
       };
@@ -206,10 +198,10 @@ in {
         };
 
         stack = name;
-        glance = {
+        dashboard = {
           inherit category;
-          parent = name;
           icon = "di:postgres";
+          parent = name;
         };
       };
     };

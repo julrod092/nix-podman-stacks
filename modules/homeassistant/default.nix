@@ -45,7 +45,7 @@ in {
     };
 
     services.podman.containers.${name} = {
-      image = "ghcr.io/home-assistant/home-assistant:2026.9.3";
+      image = "ghcr.io/home-assistant/home-assistant:2026.10.2";
       volumeMap = {
         config = "${storage}/config:/config";
         # User should be in 'dialout' group for HA to access bluetooth module
@@ -57,18 +57,9 @@ in {
 
       port = 8123;
       traefik.name = name;
-      homepage = {
-        inherit category;
-        name = displayName;
-        settings = {
-          inherit description;
-          icon = "home-assistant";
-        };
-      };
-      glance = {
+      dashboard = {
         inherit category description;
         name = displayName;
-        id = name;
         icon = "di:home-assistant";
       };
     };

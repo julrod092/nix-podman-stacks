@@ -194,7 +194,7 @@ in {
     };
 
     services.podman.containers.${name} = {
-      image = "ghcr.io/gtsteffaniak/filebrowser:2.0.7-beta";
+      image = "ghcr.io/gtsteffaniak/filebrowser:2.1.2-beta";
       user = "${toString config.nps.defaultUid}:${toString config.nps.defaultGid}";
       volumeMap = {
         settings = "${yaml.generate "config.yml" cfg.settings}:/home/filebrowser/config.yml";
@@ -210,17 +210,8 @@ in {
       wantsContainer = lib.optional cfg.oidc.enable "authelia";
       port = 80;
       traefik.name = name;
-      homepage = {
-        inherit category;
-        name = displayName;
-        settings = {
-          inherit description;
-          icon = "filebrowser-quantum";
-        };
-      };
-      glance = {
+      dashboard = {
         inherit category description;
-        id = name;
         name = displayName;
         icon = "di:filebrowser-quantum";
       };

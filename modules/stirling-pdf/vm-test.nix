@@ -1,6 +1,6 @@
 {
   pkgs,
-  dummyHash,
+  dummyClientSecretHash,
   dummySecretFile,
   selfSignedCertDir,
   ...
@@ -27,7 +27,7 @@ in {
     oidc = {
       enable = true;
       clientSecretFile = dummySecretFile;
-      clientSecretHash = dummyHash;
+      clientSecretHash = dummyClientSecretHash;
     };
   };
 
